@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>BBVA | DataViz</title>
+
+  <link rel="stylesheet" href="css/tipsy.css">
+  <link rel="stylesheet" href="css/default.css">
+  <link rel="stylesheet" href="css/default.date.css">
+  <link rel="stylesheet" href="css/leaflet.css">
+  <link rel="stylesheet" href="css/jquery-ui.css">
+  <link rel="stylesheet" href="css/style.css">
+  
+  <script src="js/jquery-1.10.2.min.js"></script>
+  <script src="js/jquery-ui.js"></script>
+  <script src="js/d3.v3.min.js" charset="utf-8"></script>
+  <script src="js/leaflet-src.js"></script>
+  <script src="js/leaflet.utfgrid.js"></script>
+  <script src="js/leaflet.ajax.min.js"></script>
+
+
+
+
+  
+  
+</head>
+
+<body id="dummybodyid" style="">
+
+  <div id="map" class="leaflet-container leaflet-fade-anim" tabindex="0">
+
+  </div>
+  <div id="selector">
+    <div id="selector-pobreza" onmousedown="change_mode(&#39;pobreza&#39;);" class="selector">POBREZA</div>
+    <div id="selector-rezago" onmousedown="change_mode(&#39;rezago000510&#39;);" class="selector">REZAGO SOCIAL</div>
+  </div>
+  <div class="varlist" id="varlist_pobreza">
+    <div class="light text datos-title blue-light blue-text">Variables
+      <img style="float: right; margin-top: -5px;" height="30" width="48" src="img/personas.png">
+    </div>
+    <div class="nombre-variable varname pobreza nombre-variable-selected" onmousedown="add_municipios_layer(&#39;pobreza&#39;,&#39;pobreza&#39;);">Pobreza</div>
+
+  </div>
+  <div id="datos_mun">
+    <div class="dark nom_mun blue-dark">Info</div>
+    <div class="mundata-box light state_box blue-light">
+      <div class="state_name">ZipCode</div>
+      <div class="num_mun">1232</div>
+    </div>
+    <div id="nom_var" class="box-title"></div>
+    <div class="mundata-box beneficiarios_box">
+      <div id="porcentaje" class="text beneficiarios blue-text">--</div>
+      <div class="personas_box">
+        <img src="img/h.png">
+        <span style="margin-left: 3px;" id="personas" class="text blue-text">--</span>
+      </div>
+      <svg id="inversion_pie" width="80" height="80" style="display: none;"></svg>
+      <div id="legend">
+        <div id="legend-rezago000510">
+          <div style="background-color: #edf8e9;" class="legend-box"></div>
+          <div style="background-color: #bae4b3;" class="legend-box"></div>
+          <div style="background-color: #74c476;" class="legend-box"></div>
+          <div style="background-color: #31a354;" class="legend-box"></div>
+          <div style="background-color: #006d2c;" class="legend-box"></div>
+          <div class="legend-box">&lt; 20%</div>
+          <div class="legend-box">20% - 40%</div>
+          <div class="legend-box">40% - 60%</div>
+          <div class="legend-box">60% - 80%</div>
+          <div class="legend-box">&gt; 80%</div>
+          <div style="clear:both;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="slider-box">
+    <div class="dark year blue-dark" onmousedown="change_year(2000)" id="2000">2000</div>
+    <div class="dark year blue-dark" onmousedown="change_year(2005)" id="2005">2005</div>
+    <div class="dark year selected-year blue-dark" onmousedown="change_year(2010)" id="2010">2010</div>
+  </div>
+
+  <script type="text/javascript" charset="utf-8">
+    var geojsonLayer;
+
+    function getColor(d) {
+      return d > 1000 ? '#800026' :
+        d > 500 ? '#BD0026' :
+        d > 200 ? '#E31A1C' :
+        d > 100 ? '#FC4E2A' :
+        d > 50 ? '#FD8D3C' :
+        d > 20 ? '#FEB24C' :
+        d > 10 ? '#FED976' :
+        '#FFEDA0';
+    }
+
+    function getRandomArbitrary(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function style(feature) {
+      return {
+        weight: 1,
+        opacity: 1,
+        color: 'black',
+        //dashArray: '3',
+        fillOpacity: 0.4,
+        fillColor: getColor(getRandomArbitrary(10, 1000))
+        //        fillColor: getColor(feature.properties.density)
+      };
+    }
+
+    function highlightFeature(e) {
+      var layer = e.target;
+
+      layer.setStyle({
+        weight: 5,
+        color: '#666',
+        dashArray: '',
+        fillOpacity: 0.7
+      });
+
+      if (!L.Browser.ie && !L.Browser.opera) {
+        layer.bringToFront();
+      }
+
+      info.update(layer.feature.properties);
+    }
+
+
+    function resetHighlight(e) {
+      geojsonLayer.resetStyle(e.target);
+      info.update();
+    }
+
+    function zoomToFeature(e) {
+      map.fitBounds(e.target.getBounds());
+    }
+
+    function onEachFeature(feature, layer) {
+      layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight,
+        click: zoomToFeature
+      });
+    }
+
+
+    var map = new L.Map('map', {
+      maxZoom: 20,
+      minZoom: 1
+    }).setView([19.360916, -99.146691], 11);
+
+
+    L.tileLayer('http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      detectRetina: true
+    }).addTo(map);
+
+
+	// control that shows state info on hover
+    var info = L.control();
+
+    info.onAdd = function (map) {
+        this.update();
+        return this._div;
+    };
+
+    info.update = function (props) {
+        var ui_state_name = $('.state_name'),
+            ui_num_mun    = $('.num_mun');
+
+        if (props){
+          if (ui_state_name && ui_num_mun){
+            ui_state_name.text(props.POSTALCODE);
+            ui_num_mun.text(props.MUN_NAME);
+          } 
+        }
+    };
+
+    info.addTo(map);
+    
+
+    geojsonLayer = new L.GeoJSON.AJAX("data/df-zipcodes.geojson", {
+      style: style,
+      onEachFeature: onEachFeature
+    });
+    map.addLayer(geojsonLayer);
+  </script>
+</body>
+
+</html>
