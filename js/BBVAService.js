@@ -53,6 +53,25 @@ var BBVAService = {
       beforeSend: setHeader
     });
 
+  },
+  getCustomerZipCodes: function(zipcode,category_code,min_date,max_date,order_by,callback){
+    var uri = 'https://apis.bbvabancomer.com/datathon/zipcodes/_ZIPCODE_/customer_zipcodes';
+    uri = uri.replace('_ZIPCODE_',zipcode);
+
+    $.ajax({
+      url: uri,
+      type: 'GET',
+      dataType: 'json',
+      success: function (data) {
+        if (data.result.code === 200) {
+          callback(data.data.stats);
+        }
+      },
+      error: function () {
+        console.log('Error getting categories.');
+      },
+      beforeSend: setHeader
+    });
   }
 
 
