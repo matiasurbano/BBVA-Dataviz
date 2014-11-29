@@ -13,14 +13,19 @@
   <link rel="stylesheet" href="css/default.date.css">
   <link rel="stylesheet" href="css/leaflet.css">
   <link rel="stylesheet" href="css/jquery-ui.css">
+  <link rel="stylesheet" href="css/select2.css">
   <link rel="stylesheet" href="css/style.css">
-  
+
+
   <script src="js/jquery-1.10.2.min.js"></script>
+  <script src="js/underscore-min.js"></script>s
   <script src="js/leaflet.js"></script>
   <script src="js/leaflet.ajax.min.js"></script>
-  
+  <script src="js/select2.js"></script>
+  <script src="js/leaflet.spin.js"></script>
+  <script src="js/spin.js"></script>
+
   <script src="js/BBVAService.js"></script>
-  <script src="js/underscore-min.js"></script>s
   
 </head>
 
@@ -37,16 +42,49 @@
     <div class="light text datos-title blue-light blue-text">Variables
       <img style="float: right; margin-top: -5px;" height="30" width="48" src="img/personas.png">
     </div>
-    <div class="nombre-variable varname pobreza nombre-variable-selected" onmousedown="add_municipios_layer(&#39;pobreza&#39;,&#39;pobreza&#39;);">Pobreza</div>
+    <div class="nombre-variable varname pobreza nombre-variable-selected">
+      <select id="cmbCategories" style="width:100%">
+      </select>
+    </div>
 
   </div>
   <div id="slider-box">
-    <div class="dark year blue-dark" onmousedown="change_year(2000)" id="2000">2000</div>
-    <div class="dark year blue-dark" onmousedown="change_year(2005)" id="2005">2005</div>
-    <div class="dark year selected-year blue-dark" onmousedown="change_year(2010)" id="2010">2010</div>
+    <div class="dark year blue-dark"  id="2000">Nov 13</div>
+    <div class="dark year blue-dark"  id="2005">Dec 13</div>
+    <div class="dark year blue-dark"  id="2010">Jan 14</div>
+    <div class="dark year blue-dark"  id="2000">Feb 14</div>
+    <div class="dark year blue-dark"  id="2005">Mar 14</div>
+    <div class="dark year blue-dark"  id="2010">Apr 14</div>
   </div>
 
   <script type="text/javascript" charset="utf-8">
+    $(document).ready(function() { 
+
+
+      function loadCmbCategories(){
+        var strCmd ='',
+        ui_cmbCategories = $("#cmbCategories");
+
+        strCmd +=  " <option value='all'>All Categories</option>";
+        BBVAService.getCategories(function(data){
+          data.forEach(function(item){
+            strCmd +=  "<optgroup value='"+ item.code +"' label='"+ item.description +"'>";
+            item.subcategories.forEach(function(subItem){
+              strCmd +=  " <option value='"+ subItem.code +"'>"+ subItem.code + " - " + subItem.description +"</option>";
+            });
+            strCmd +=  "</optgroup>";
+          });
+
+
+          ui_cmbCategories.html(strCmd);
+          ui_cmbCategories.select2();
+        });    
+      };
+      loadCmbCategories();
+
+
+    });
+
     var geojsonLayer;
     
     
@@ -58,12 +96,26 @@
 
     // });    
 
-    // BBVAService.getRankingZipcodes(function(data){
+    // BBVAService.getRankingZipcodes(function(data){ 
 
     //   console.log('Ranking ZipCodes');
     //   console.log(data);
 
-    // });    
+    // });  
+
+    var getCustomerZipCodes_options = {
+      zipcode : 15390,
+      category : 'All',
+      date_min : '20140101',
+      date_max : '20140331',
+      by: 'month'
+    };
+    BBVAService.getCustomerZipCodes(function(data){ 
+
+      console.log('CustomerZipCodes_options');
+      console.log(data);
+
+    });    
 
 
 
@@ -96,9 +148,7 @@ function style(feature) {
     color: 'black',
         //dashArray: '3',
         fillOpacity: 0.4,
-        // fillColor: getColor(getRandomArbitrary(10, 1000))
         fillColor: getFixedColor(feature)
-        //        fillColor: getColor(feature.properties.density)
       };
     }
     var layer;
@@ -200,36 +250,15 @@ function style(feature) {
 
     info.addTo(map);
 
-
-//	// control that shows state info on hover
-//    var info = L.control();
-//
-//    info.onAdd = function (map) {
-//        this.update();
-//        return this._div;
-//    };
-//
-//    info.update = function (props) {
-//        var ui_state_name = $('.state_name'),
-//            ui_num_mun    = $('.num_mun');
-//
-//        if (props){
-//          if (ui_state_name && ui_num_mun){
-//            ui_state_name.text(props.POSTALCODE);
-//            ui_num_mun.text(props.MUN_NAME);
-//          } 
-//        }
-//    };
-//
-//    info.addTo(map);
-
-
-geojsonLayer = new L.GeoJSON.AJAX("data/df-zipcodes.geojson", {
-  style: style,
-  onEachFeature: onEachFeature
-});
-map.addLayer(geojsonLayer);
-</script>
+    geojsonLayer = new L.GeoJSON.AJAX("data/df-zipcodes.geojson", {
+      style: style,
+      onEachFeature: onEachFeature//,
+      // pointToLayer: function (featu\re, latlng) {
+      //   return L.circleMarker(latlng);
+      // }
+    });
+    map.addLayer(geojsonLayer);
+  </script>
 </body>
 
 </html>
