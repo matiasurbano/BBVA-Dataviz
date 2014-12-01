@@ -27,6 +27,8 @@
     <script src="js/spin.js"></script>
     <script src="js/toasty-min.js"></script>
 
+
+    <script src="js/AirQualityService.js"></script>
     <script src="js/MapHelper.js"></script>
     <script src="js/BBVAService.js"></script>
     <script src="js/common.js"></script>
@@ -75,7 +77,6 @@
       <div class="dark year blue-dark"  id="20140301-20140331">Mar 14</div>
       <div class="dark year blue-dark"  id="20140401-20140430">Apr 14</div>
     </div>
-
     <script type="text/javascript" charset="utf-8">
       $(document).ready(function() { 
     // UI Elements
@@ -84,7 +85,9 @@
     // Map Elements
     var zipCodesLayer,
     districtsLayer,
-    mainInfoPanel;
+    mainInfoPanel,
+    airQualityLayer;
+
 
     var optFilter = {
       zipcode  : '06010' || null,
@@ -93,58 +96,44 @@
       date_max : '20131130' || null,
       by       : 'month'
     };
-
     // defining map
     var map = new L.Map('map', {
       maxZoom: 20,
       minZoom: 1
     }).setView([19.360916, -99.146691], 11);
-
-
     L.tileLayer('http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
       maxZoom: 18,
       attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       detectRetina: true
     }).addTo(map);
-
-
     ui_cmbCategories.on('change',function(e){
       console.log('Categories combo change');  
       var category_code = $(this).val();
-
       if (category_code){
         optFilter.category = category_code;
         triggerOptFilter();
       }        
     });
-
     ui_cmbZipCodes.on('change',function(e){
       console.log('ZipCode combo change');
       var zip_code = $(this).val();
-
       if (zip_code){
         optFilter.zipcode = zip_code;
         triggerOptFilter();
       }        
     });
-
     var ui_optYear = $(".year");
     ui_optYear.click(function(event) {
       ui_optYear.siblings().removeClass("selected-year");
       $(event.target).addClass("selected-year")
-
       if (event.target.id){
         optFilter.date_min = event.target.id.split('-')[0];
         optFilter.date_max = event.target.id.split('-')[1];
         triggerOptFilter();
       }
-
     });
-      
-
     function triggerOptFilter(){
       console.log('trigger');
-
       var opts = {
         zipcode : optFilter.zipcode,
         category : optFilter.category,
@@ -152,20 +141,15 @@
         date_max : optFilter.date_max,
         by: optFilter.by
       };
-
       BBVAService.getCustomerZipCodes(opts.zipcode,opts.category,opts.date_min,opts.date_max,opts.by, function(data){
        // var mainZipcode = '',
        // relatedZipcodes = [];
-
         //TODO: FIX THIS!!! Just a walkaround
         window.mainZipcode = opts.zipcode;
         window.relatedZipcodes = data[0].zipcodes;
-
         function fixedColorByType(feature){
-
           var selectedZipCode = feature.properties.POSTALCODE;
           var res = _.find(relatedZipcodes, function(obj){ return obj.label==selectedZipCode })
-
           if (selectedZipCode == mainZipcode || res !== undefined){
             if (selectedZipCode==window.mainZipcode){
               mainInfoPanel.update(feature.properties);
@@ -174,9 +158,7 @@
             return 'black';  
           }             
           return 'grey';
-
         };
-
         function style(feature) {
           return {
             weight: 1,
@@ -190,44 +172,34 @@
         
         function highlightFeature(e) {
           layer = e.target;
-
           layer.setStyle({
             weight: 5,
             color: '#666',
             dashArray: '',
             fillOpacity: 0.7
           });
-
           if (!L.Browser.ie && !L.Browser.opera) {
             layer.bringToFront();
           }
-
           mainInfoPanel.update(layer.feature.properties);
         }
-
-
         function resetHighlight(e) {
           zipCodesLayer.resetStyle(e.target);
           mainInfoPanel.update();
         }
-
         function onEachFeature(feature, layer) {
           var selectedZipCode = feature.properties.POSTALCODE;
           if (selectedZipCode == window.mainZipcode){
             map.fitBounds(layer.getBounds(),{maxZoom: 12, padding: [50,50]});
           }
-
-
           layer.on({
             mouseover: highlightFeature,
             mouseout: resetHighlight,
             click: function(e){
               var selectedZipCode = feature.properties.POSTALCODE;
               var res = _.find(relatedZipcodes, function(obj){ return obj.label==selectedZipCode })
-
               if (selectedZipCode == mainZipcode || res !== undefined){
                 map.fitBounds(e.target.getBounds(),{maxZoom: 12, padding: [50,50]});
-
               }
               else{
                 optFilter.zipcode = selectedZipCode;
@@ -237,31 +209,23 @@
             }
           });
         }
-
         function filter(feature, layer) {
           var selectedZipCode = feature.properties.POSTALCODE;
           var res = _.find(relatedZipcodes, function(obj){ return obj.label==selectedZipCode })
-
           return (selectedZipCode == mainZipcode || res !== undefined)
         }
-
         if (zipCodesLayer !== undefined){
           map.removeLayer(zipCodesLayer);           
         }
-
         zipCodesLayer = new L.GeoJSON.AJAX("data/df-zipcodes.geojson", {
           style: style,
           onEachFeature: onEachFeature,
          // filter: filter
        });
         map.addLayer(zipCodesLayer);
-
       });  
 }
-
 triggerOptFilter();
-
-
 function style_districtsLayer(feature) {
   return {
     weight: 1,
@@ -276,120 +240,124 @@ function style_districtsLayer(feature) {
       style: style_districtsLayer
     });
     map.addLayer(districtsLayer);  
-
   // control that shows state info on hover
   var mainInfoPanel = L.control();
-
   mainInfoPanel.onAdd = function (map) {
     this._div = L.DomUtil.create('div', 'info');
     this.update();
     return this._div;
   };
-
   mainInfoPanel.update = function (props) {
     var that = this,
-    panelHTML ='';
-
-
+        panelHTML ='';
     if (props){
-
-      var opts = {
-        category : optFilter.category,
-        date_min : optFilter.date_min,
-        date_max : optFilter.date_max
-      };
-
-      var selectedZipCode = props.POSTALCODE;
-
-      if (selectedZipCode == mainZipcode){
-
-
-        // panelHTML += 
-        // "<div id='datos_mun' style='z-index:9999;'>"+
-        // " <div class='dark nom_mun blue-dark'>ZipCode Details</div> " +
-        // " <div class='mundata-box light state_box blue-light'> " +
-        // "   <div class='state_name'>ZipCode:      " + props.POSTALCODE + "</div> " +
-        // "   <div class='num_mun'   >Municipality: "  + props.MUN_NAME +  "</div> " +
-        // " </div> ";
-
-        // panelHTML += 
-        // " <div class='box-title'> " + 
-        // "      <div class='light text datos-title' style='background: white; color: black;'>" +
-        // "            <img style=' margin-top: -5px;' height='22' width='22' src='img/spinner.gif'>  " + 
-        // "      </div> " + 
-        // "  </div> ";
-
-        // that._div.innerHTML = panelHTML;
-
-
-      // get more informacion about
-      BBVAService.getGenderByZipCodes(props.POSTALCODE,opts.category,opts.date_min,opts.date_max,function(data){
-
-
-        if (data[0] && data[0].histogram[0]){
-          // men stats
-          men_num_payments = data[0].histogram[0].num_payments;
-          men_avg = data[0].histogram[0].avg;
-
-          // men stats
-          wom_num_payments = data[0].histogram[1].num_payments;
-          wom_avg = data[0].histogram[1].avg
-        }
-
-        that._div.innerHTML = '';
+    var opts = {
+      category : optFilter.category,
+      date_min : optFilter.date_min,
+      date_max : optFilter.date_max
+    };
+    var selectedZipCode = props.POSTALCODE;
+    if (selectedZipCode == mainZipcode){
         panelHTML += 
-        "<div id='datos_mun' style='z-index:9999;'>"+
+        "<div id='datos_mun' style='z-index:8888;'>"+
         " <div class='dark nom_mun blue-dark'>ZipCode Details</div> " +
         " <div class='mundata-box light state_box blue-light'> " +
         "   <div class='state_name'>ZipCode:      " + props.POSTALCODE + "</div> " +
         "   <div class='num_mun'   >Municipality: "  + props.MUN_NAME +  "</div> " +
         " </div> ";
-
+       panelHTML += 
+        " <div class='box-title'> " + 
+        "      <div class='light text datos-title' style='background: white; color: black;'>" +
+        "            <img style=' margin-top: -5px;' height='22' width='22' src='img/spinner.gif'>  " + 
+        "      </div> " + 
+        "  </div> ";
+        panelHTML += 
+        " <div class='box-title'> " + 
+        " </div> " +
+        " </div>";
+      that._div.innerHTML = panelHTML;
+      // get more informacion about
+      BBVAService.getGenderByZipCodes(props.POSTALCODE,opts.category,opts.date_min,opts.date_max,function(data){
         if (data[0] && data[0].histogram[0]){
-
-          panelHTML += 
-          " <div class='box-title'> " + 
-          "      <div class='light text datos-title' style='background: white; color: black;'>Avg.  <b>" + men_avg + "</b> Num. <b>" + men_num_payments + " </b> " +
-          "            <img style='float: left; margin-top: -5px;' height='25' width='35' src='img/men.png'>  " + 
-          "      </div> " + 
-          "  </div> " + 
-          " <div class='box-title'> " + 
-          "      <div class='light text datos-title' style='background: white; color: black;'>Avg.  <b>" + wom_avg + "</b> Num. <b>" + wom_num_payments +  " </b> " +
-          "            <img style='float: left; margin-top: -5px;' height='25' width='35' src='img/women.png'>  " + 
-          "      </div> " +  
-          "  </div> ";
-
+          // men stats
+          men_num_payments = data[0].histogram[0].num_payments;
+          men_avg = data[0].histogram[0].avg;
+          // men stats
+          wom_num_payments = data[0].histogram[1].num_payments;
+          wom_avg = data[0].histogram[1].avg
         }
-
-        that._div.innerHTML = panelHTML;
+   
+        panelHTML += 
+        "<div id='datos_mun' style='z-index:8888;'>"+
+        " <div class='dark nom_mun blue-dark'>ZipCode Details</div> " +
+        " <div class='mundata-box light state_box blue-light'> " +
+        "   <div class='state_name'>ZipCode:      " + props.POSTALCODE + "</div> " +
+        "   <div class='num_mun'   >Municipality: "  + props.MUN_NAME +  "</div> " +
+        " </div> ";
+         if (data[0] && data[0].histogram[0]){
+        panelHTML += 
+        " <div class='box-title'> " + 
+        "      <div class='light text datos-title' style='background: white; color: black;'>Avg.  <b>" + men_avg + "</b> Num. <b>" + men_num_payments + " </b> " +
+        "            <img style='float: left; margin-top: -5px;' height='25' width='35' src='img/men.png'>  " + 
+        "      </div> " + 
+        "  </div> " + 
+        " <div class='box-title'> " + 
+        "      <div class='light text datos-title' style='background: white; color: black;'>Avg.  <b>" + wom_avg + "</b> Num. <b>" + wom_num_payments +  " </b> " +
+        "            <img style='float: left; margin-top: -5px;' height='25' width='35' src='img/women.png'>  " + 
+        "      </div> " +  
+        "  </div> ";
+        }
+         that._div.innerHTML = panelHTML;
       });
+    }else{
+       that._div.innerHTML = 
+            "<div id='datos_mun' style='z-index:8888;'>"+
+            " <div class='dark nom_mun blue-dark'>ZipCode Details</div> " +
+            " <div class='mundata-box light state_box blue-light'> " +
+            "   <div class='state_name'>ZipCode:      " + props.POSTALCODE + "</div> " +
+            "   <div class='num_mun'   >Municipality: "  + props.MUN_NAME +  "</div> " +
+            " </div> " +      
+            " </div>";
+          
+    }
+    }
+  };
+  mainInfoPanel.addTo(map);
 
 
-}else{
- that._div.innerHTML = 
- "<div id='datos_mun' style='z-index:9999;'>"+
- " <div class='dark nom_mun blue-dark'>ZipCode Details</div> " +
- " <div class='mundata-box light state_box blue-light'> " +
- "   <div class='state_name'>ZipCode:      " + props.POSTALCODE + "</div> " +
- "   <div class='num_mun'   >Municipality: "  + props.MUN_NAME +  "</div> " +
- " </div> ";
+var airQualityMarkers = [];
+  airQuality.forEach(function(elem){
 
+    var marker = L.marker([
+        elem.lat,
+        elem.lon
+    ], {
+        icon: L.divIcon({
+            className: 'count-icon',
+            html: elem.aqi,
+            iconSize: [40, 40]
+        })
+    })
+    airQualityMarkers.push(marker);
+    var imageInfo = "<div style='z-index:9999;'><iframe src='http://aqicn.org/aqicn/json/mapinfo/@00000" + elem.x + "/info.html?" + elem.x + "&h=250' width=300' height='300' frameborder='0'></iframe></div>";
+    marker.bindPopup(imageInfo).openPopup();
+    marker.addTo(map);
+});
 
+var popup = L.popup();
+
+function onMapClick(e) {
+  popup
+    .setLatLng(e.latlng)
+    .setContent("No action here!")
+    .openOn(map);
 }
 
-
-
-
-
-}
-};
-
-mainInfoPanel.addTo(map);
+map.on('click', onMapClick);
 
 
 
 });
-
 
 </script>
 </body>
