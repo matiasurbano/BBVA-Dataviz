@@ -34,29 +34,29 @@
   </head>
 
   <body id="dummybodyid" style="">
-
     <div id="map" class="leaflet-container leaflet-fade-anim" tabindex="0">
 
     </div>
     <div id="selector">
-      <div id="selector-pobreza" onmousedown="change_mode(&#39;pobreza&#39;);" class="selector">POBREZA</div>
-      <div id="selector-rezago" onmousedown="change_mode(&#39;rezago000510&#39;);" class="selector">REZAGO SOCIAL</div>
+      <div id="selector-pobreza" class="selector">Control Panel</div>
     </div>
     <div class="varlist" id="varlist_pobreza">
-      <div class="light text datos-title blue-light blue-text">Variables
+<!--       <div class="light text datos-title blue-light blue-text">Categories
         <img style="float: right; margin-top: -5px;" height="30" width="48" src="img/personas.png">
-      </div>
+      </div> -->
       <div class="nombre-variable varname nombre-variable-selected">
         <select id="cmbCategories" style="width:100%">
         </select>
       </div>
+ <!--      <div class="light text datos-title blue-light blue-text">ZipCode
+        <img style="float: right; margin-top: -5px;" height="30" width="48" src="img/personas.png">
+      </div> -->
       <div class="nombre-variable varname nombre-variable-selected">
         <select id="cmbZipCodes" style="width:100%">
         </select>
       </div>
-
-
     </div>
+
     <div id="slider-box">
       <div class="dark year blue-dark selected-year"  id="20131101-20131130">Nov 13</div>
       <div class="dark year blue-dark"  id="20131201-20131231">Dec 13</div>
@@ -78,7 +78,7 @@
 
     var optFilter = {
       zipcode  : '06010' || null,
-      category : 'mx_mall' || null,
+      category : 'mx_fastfood' || null,
       date_min : '20131101' || null,
       date_max : '20131130' || null,
       by       : 'month'
@@ -147,9 +147,6 @@
        // var mainZipcode = '',
        // relatedZipcodes = [];
 
-       console.log('CustomerZipCodes_options');
-       console.log(data);
-
         //TODO: FIX THIS!!! Just a walkaround
         window.mainZipcode = opts.zipcode;
         window.relatedZipcodes = data[0].zipcodes;
@@ -160,8 +157,10 @@
           var res = _.find(relatedZipcodes, function(obj){ return obj.label==selectedZipCode })
 
           if (selectedZipCode == mainZipcode || res !== undefined){
-            if (selectedZipCode==window.mainZipcode)
+            if (selectedZipCode==window.mainZipcode){
+              mainInfoPanel.update(feature.properties);
               return 'red';                
+            }
             return 'black';  
           }             
           return 'grey';
@@ -278,38 +277,135 @@ function style_districtsLayer(feature) {
   };
 
   mainInfoPanel.update = function (props) {
+    var that = this,
+        panelHTML ='';
+
+
     if (props){
-      this._div.innerHTML = 
-      "<div id='datos_mun' style='z-index:9999;'>"+
-      " <div class='dark nom_mun blue-dark'>Info</div> " +
-      " <div class='mundata-box light state_box blue-light'> " +
-      "   <div class='state_name'>" + props.POSTALCODE + "</div> " +
-      "   <div class='num_mun'>"  + props.MUN_NAME +  "</div> " +
-      " </div> " +
-      " <div id='nom_var' class='box-title'></div> " +
-      " <div class='mundata-box beneficiarios_box'> " +
-      "   <div id='porcentaje' class='text beneficiarios blue-text'>--</div> " +
-      "   <div class='personas_box'> " +
-      "     <img src='img/h.png'> " +
-      "     <span style='margin-left: 3px;' id='personas' class='text blue-text'>--</span> " +
-      "   </div> " +
-      "   <div id='legend'> " +
-      "     <div id='legend-rezago000510'> " +
-      "       <div style='background-color: #edf8e9;' class='legend-box'></div> " +
-      "       <div style='background-color: #bae4b3;' class='legend-box'></div> " +
-      "       <div style='background-color: #74c476;' class='legend-box'></div> " +
-      "       <div style='background-color: #31a354;' class='legend-box'></div> " +
-      "       <div style='background-color: #006d2c;' class='legend-box'></div> " +
-      "       <div class='legend-box'>&lt; 20%</div> " +
-      "       <div class='legend-box'>20% - 40%</div> " +
-      "       <div class='legend-box'>40% - 60%</div> " +
-      "       <div class='legend-box'>60% - 80%</div> " +
-      "       <div class='legend-box'>&gt; 80%</div> " +
-      "       <div style='clear:both;'></div> " +
-      "     </div> " +
-      "   </div> " +
-      " </div> " +
-      " </div>";
+
+    var opts = {
+      category : optFilter.category,
+      date_min : optFilter.date_min,
+      date_max : optFilter.date_max
+    };
+
+    var selectedZipCode = props.POSTALCODE;
+
+    if (selectedZipCode == mainZipcode){
+
+
+        panelHTML += 
+        "<div id='datos_mun' style='z-index:9999;'>"+
+        " <div class='dark nom_mun blue-dark'>ZipCode Details</div> " +
+        " <div class='mundata-box light state_box blue-light'> " +
+        "   <div class='state_name'>ZipCode:      " + props.POSTALCODE + "</div> " +
+        "   <div class='num_mun'   >Municipality: "  + props.MUN_NAME +  "</div> " +
+        " </div> ";
+
+       panelHTML += 
+        " <div class='box-title'> " + 
+        "      <div class='light text datos-title' style='background: white; color: black;'>" +
+        "            <img style=' margin-top: -5px;' height='22' width='22' src='img/spinner.gif'>  " + 
+        "      </div> " + 
+        "  </div> ";
+
+
+        panelHTML += 
+        " <div class='box-title'> " + 
+        "     <div id='legend'> " + 
+        "         <div id='legend-rezago000510'> " + 
+        "             <div style='background-color:red;'    class='legend-box'>Selected</div> " + 
+        "             <div style='background-color:black;'  class='legend-box'>Origin</div> " + 
+        "             <div style='background-color:grey;'  class='legend-box'>Not apply</div> " + 
+        "             <div style='clear:both;'></div> " + 
+        "         </div> " + 
+        "     </div> " + 
+        " </div> " +
+        " </div>";
+      that._div.innerHTML = panelHTML;
+
+
+      // get more informacion about
+      BBVAService.getGenderByZipCodes(props.POSTALCODE,opts.category,opts.date_min,opts.date_max,function(data){
+
+
+        if (data[0] && data[0].histogram[0]){
+          // men stats
+          men_num_payments = data[0].histogram[0].num_payments;
+          men_avg = data[0].histogram[0].avg;
+
+          // men stats
+          wom_num_payments = data[0].histogram[1].num_payments;
+          wom_avg = data[0].histogram[1].avg
+        }
+   
+        panelHTML += 
+        "<div id='datos_mun' style='z-index:9999;'>"+
+        " <div class='dark nom_mun blue-dark'>ZipCode Details</div> " +
+        " <div class='mundata-box light state_box blue-light'> " +
+        "   <div class='state_name'>ZipCode:      " + props.POSTALCODE + "</div> " +
+        "   <div class='num_mun'   >Municipality: "  + props.MUN_NAME +  "</div> " +
+        " </div> ";
+
+         if (data[0] && data[0].histogram[0]){
+
+        panelHTML += 
+        " <div class='box-title'> " + 
+        "      <div class='light text datos-title' style='background: white; color: black;'>Avg.  <b>" + men_avg + "</b> Num. <b>" + men_num_payments + " </b> " +
+        "            <img style='float: left; margin-top: -5px;' height='25' width='35' src='img/men.png'>  " + 
+        "      </div> " + 
+        "  </div> " + 
+        " <div class='box-title'> " + 
+        "      <div class='light text datos-title' style='background: white; color: black;'>Avg.  <b>" + wom_avg + "</b> Num. <b>" + wom_num_payments +  " </b> " +
+        "            <img style='float: left; margin-top: -5px;' height='25' width='35' src='img/women.png'>  " + 
+        "      </div> " +  
+        "  </div> ";
+
+        }
+
+        panelHTML += 
+        " <div class='box-title'> " + 
+        "     <div id='legend'> " + 
+        "         <div id='legend-rezago000510'> " + 
+        "             <div style='background-color:red;'    class='legend-box'>Selected</div> " + 
+        "             <div style='background-color:black;'  class='legend-box'>Origin</div> " + 
+        "             <div style='background-color:grey;'  class='legend-box'>Not apply</div> " + 
+        "             <div style='clear:both;'></div> " + 
+        "         </div> " + 
+        "     </div> " + 
+        " </div> " +
+        " </div>";
+
+         that._div.innerHTML = panelHTML;
+      });
+
+
+    }else{
+       that._div.innerHTML = 
+            "<div id='datos_mun' style='z-index:9999;'>"+
+            " <div class='dark nom_mun blue-dark'>ZipCode Details</div> " +
+            " <div class='mundata-box light state_box blue-light'> " +
+            "   <div class='state_name'>ZipCode:      " + props.POSTALCODE + "</div> " +
+            "   <div class='num_mun'   >Municipality: "  + props.MUN_NAME +  "</div> " +
+            " </div> " +      
+            " <div class='box-title'> " + 
+            "     <div id='legend'> " + 
+            "         <div id='legend-rezago000510'> " + 
+            "             <div style='background-color:red;'    class='legend-box'>Selected</div> " + 
+            "             <div style='background-color:black;'  class='legend-box'>Origin</div> " + 
+            "             <div style='background-color:grey;'  class='legend-box'>Not apply</div> " + 
+            "             <div style='clear:both;'></div> " + 
+            "         </div> " + 
+            "     </div> " + 
+            " </div> " +
+            " </div>";
+          
+
+    }
+
+
+
+
 
     }
   };
