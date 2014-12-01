@@ -20,7 +20,7 @@ var BBVAService = {
        else{
           $().toasty({
               message: "There is no data for this selection.",
-              autoHide: 2000
+              autoHide: 3000
           });          
         }
       },
@@ -28,7 +28,7 @@ var BBVAService = {
         console.log('Error getting categories.');
         $().toasty({
             message: "There is no data for this selection.",
-            autoHide: 2000
+            autoHide: 3000
         });              
       },
       beforeSend: setHeader
@@ -55,7 +55,7 @@ var BBVAService = {
         else{
           $().toasty({
               message: "There is no data for this selection.",
-              autoHide: 2000
+              autoHide: 3000
           });          
         }
       },
@@ -64,7 +64,7 @@ var BBVAService = {
         
           $().toasty({
               message: "There is no data for this selection.",
-              autoHide: 2000
+              autoHide: 3000
           });          
         
       },
@@ -94,7 +94,7 @@ var BBVAService = {
         else{
           $().toasty({
               message: "There is no data for this selection.",
-              autoHide: 2000
+              autoHide: 3000
           });          
         }        
       },
@@ -102,7 +102,7 @@ var BBVAService = {
         console.log('Error getting cutomers by zipcode.');
           $().toasty({
               message: "There is no data for this selection.",
-              autoHide: 2000
+              autoHide: 3000
           });              
       },
       beforeSend: setHeader
@@ -129,7 +129,7 @@ var BBVAService = {
         else{
           $().toasty({
               message: "There is no data for this selection.",
-              autoHide: 2000
+              autoHide: 3000
           });          
         }
       },
