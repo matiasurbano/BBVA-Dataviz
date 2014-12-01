@@ -3,33 +3,33 @@
       padding: 0;
       font: 14px/20px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
       overflow: hidden;
-      }
-      img#img_header {
+}
+img#img_header {
       position: absolute;
       left: 50px;
       top: 20px;
       z-index: 20;
-      }
-      #map {
+}
+#map {
       position: absolute;
       width: 100%;
       top: 0;
       overflow: hidden;
       height: 100%;
-      }
-      .tipsy {
+}
+.tipsy {
       font-family: 'Rockwell', serif;
       font-size: 14px;
       margin-left: 10px;
-      }
-      #agency-select-wrapper {
+}
+#agency-select-wrapper {
       position: absolute;
       left: 10px;
       bottom: -390px;
       z-index: 3000;
       background-color: #fff;
-      }
-      #legend {
+}
+#legend {
       background-color: #fff;
       position: absolute;
       width: 220px;
@@ -37,8 +37,8 @@
       color: #000;
       text-align: center;
       top: 90px;
-      }
-      .legend-title {
+}
+.legend-title {
       font-size: 12px;
       text-transform: uppercase;
       color: #222;
@@ -46,39 +46,39 @@
       background-color: #eee;
       margin-bottom: 3px;
       font-weight: 700;
-      }
-      .legend-box {
+}
+.legend-box {
       float: left;
       margin-left: 5px;
       height: 20px;
       width: 38px;
       font-size: 8px;
       color: #999;
-      }
-      #datos_mun {
+}
+#datos_mun {
       background-color: #fff;
       font-family: "Roboto", "Arial", sans-serif;
       position: absolute;
       top: 100px;
       right: 20px;
       width: 230px;
-      }
-      #nom_var {
+}
+#nom_var {
       padding: 5px;
       background-color: #fff;
-      }
-      .mundata-box {
+}
+.mundata-box {
       background-color: #fff;
       border-bottom: 1px solid #eee;
       position: relative;
       height: 110px;
-      }
-      #datos_mun .state_box {
+}
+#datos_mun .state_box {
       height: 66px;
       position: relative;
       color: #fff;
-      }
-      .state_box .state_name {
+}
+.state_box .state_name {
       position: absolute;
       left: 90px;
       top: 15px;
@@ -86,66 +86,66 @@
       text-transform: uppercase;
       font-weight: 700;
       width: 200px;
-      }
-      .state_box .num_mun {
+}
+.state_box .num_mun {
       position: absolute;
       left: 90px;
       top: 30px;
       font-size: 11px;
-      }
-      #datos_mun .nom_mun {
+}
+#datos_mun .nom_mun {
       font-size: 14px;
       padding: 5px 10px;
       font-weight: 700;
       color: #fff;
-      }
-      #datos_mun .box-title {
+}
+#datos_mun .box-title {
       padding: 5px 10px;
       font-size: 12px;
       text-transform: uppercase;
-      }
-      .inversion_caption {
+}
+.inversion_caption {
       font-size: 10px;
       line-height: 12px;
       padding: 10px 10px;
-      }
-      #inversion_pie {
+}
+#inversion_pie {
       position: absolute;
       position: absolute;
       top: 0;
       left: 140px;
-      }
-      #porcentaje {
+}
+#porcentaje {
       margin-left: 10px;
       font-weight: 700;
       font-size: 32px;
       margin-top: 5px;
-      }
-      .personas_box {
+}
+.personas_box {
       margin-left: 10px;
       margin-top: 15px;
       margin-bottom: 15px;
       font-size: 16px;
       font-weight: 700;
-      }
-      .tiendas_image {
+}
+.tiendas_image {
       padding: 5px 10px;
-      }
-      .tiendas {
+}
+.tiendas {
       position: absolute;
       left: 55px;
       top: 32px;
-      }
-      .state_image {
+}
+.state_image {
       padding-top: 3px;
       margin-left: 15px;
-      }
-      #selector {
+}
+#selector {
       left: 10px;
       top: 160px;
       position: absolute;
-      }
-      .selector {
+}
+.selector {
       float: left;
       text-align: center;
       width: 100px;
@@ -155,21 +155,21 @@
       font-weight: bold;
       height: 50px;
       cursor: pointer;
-      }
-      #selector-pobreza {
+}
+#selector-pobreza {
       background-color: #342170;
       line-height: 40px;
-      }
-      #selector-rezago {
+}
+#selector-rezago {
       background-color: #16b348;
-      }
-      #selector-pobreza:hover {
+}
+#selector-pobreza:hover {
       background-color: rgb(180,171,201);
-      }
-      #selector-rezago:hover {
+}
+#selector-rezago:hover {
       background-color: rgb(189,234,203);
-      }
-      .varlist {
+}
+.varlist {
       width: 220px;
       background-color: #fff;
       z-index: 2000;
@@ -177,79 +177,79 @@
       left: 10px;
       top: 210px;
       font-family: "Roboto", serif;
-      }
-      .datos-title {
+}
+.datos-title {
       font-family: "Roboto", sans-serif;
       background-color: #8431a6;
       padding: 5px 10px;
       font-size: 12px;
       text-align: left;
       color: #fff;
-      }
-      .datos-entidad {
+}
+.datos-entidad {
       font-size: 11px;
-      }
-      .varname {
+}
+.varname {
       padding: 5px 10px;
       border-bottom: 1px solid #eee;
       line-height: 12px;
       font-size: 12px;
       background-color: #fff;
       color: #555;
-      }
-      .nombre-variable-selected, .nombre-agency-selected {
+}
+.nombre-variable-selected, .nombre-agency-selected {
       background-color: #bbb;
-      }
-      .green-light.varname, .blue-light.varname {
+}
+.green-light.varname, .blue-light.varname {
       background-color: #fff;
-      }
-      .green-light.varname:hover {
+}
+.green-light.varname:hover {
       background-color: rgb(189,234,203);
-      }
-      .blue-light.varname:hover {
+}
+.blue-light.varname:hover {
       background-color: rgb(180,171,201);
-      }
-      .agency {
+}
+.agency {
       padding: 1px 10px;
-      }
-      #datos .values {
+}
+#datos .values {
       float: right;
       font-weight: 700;
       font-size: 13px;
-      }
-      .blue-dark {
+}
+.blue-dark {
       background-color: #342170;
-      }
-      .green-dark {
+}
+.green-dark {
       background-color: #16b348;
-      }
-      .blue-text {
+}
+.blue-text {
       color: #342170;
-      }
-      .green-text {
+}
+.green-text {
       color: #16b348;
-      }
-      .blue-light {
+}
+.blue-light {
       background-color: rgb(180,171,201);
-      }
-      .green-light {
+}
+.green-light {
       background-color: rgb(189,234,203);
-      }
-      .year.blue-dark:hover {
+}
+.year.blue-dark:hover {
       background-color: rgb(180,171,201);
-      }
-      .year.green-dark:hover {
+}
+.year.green-dark:hover {
       background-color: rgb(189,234,203);
-      }
-      .selected-year.blue-dark {
+}
+.selected-year.blue-dark {
       color: #000;
       background-color: rgb(180,171,201);
-      }
-      .selected-year.green-dark {
+}
+.selected-year.green-dark {
       color: #000;
       background-color: rgb(189,234,203);
-      }
-      .year {
+}
+.year {
       padding: 10px 10px;
       font-size: 15px;
       font-weight: bold;
@@ -257,11 +257,11 @@
       width: 54px;
       float: left;
       color: #fff;
-      }
-      #slider-box {
+      cursor: pointer;
+}
+#slider-box {
       position: absolute;
-      width: 225px;
-      top: 595px;
+      bottom: 35px;
       left: 10px;
       height: 30px;
-      }
+}

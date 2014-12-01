@@ -1,194 +1,90 @@
-<!DOCTYPE html>
-<html>
+  <!DOCTYPE html>
+  <html>
 
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>BBVA | DataViz</title>
+    <title>BBVA | DataViz</title>
 
-  <link rel="stylesheet" href="css/tipsy.css">
-  <link rel="stylesheet" href="css/default.css">
-  <link rel="stylesheet" href="css/default.date.css">
-  <link rel="stylesheet" href="css/leaflet.css">
-  <link rel="stylesheet" href="css/jquery-ui.css">
-  <link rel="stylesheet" href="css/select2.css">
-  <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/tipsy.css">
+    <link rel="stylesheet" href="css/default.css">
+    <link rel="stylesheet" href="css/default.date.css">
+    <link rel="stylesheet" href="css/leaflet.css">
+    <link rel="stylesheet" href="css/jquery-ui.css">
+    <link rel="stylesheet" href="css/select2.css">
+    <link rel="stylesheet" href="css/style.css">
 
 
-  <script src="js/jquery-1.10.2.min.js"></script>
-  <script src="js/underscore-min.js"></script>s
-  <script src="js/leaflet.js"></script>
-  <script src="js/leaflet.ajax.min.js"></script>
-  <script src="js/select2.js"></script>
-  <script src="js/leaflet.spin.js"></script>
-  <script src="js/spin.js"></script>
+    <script src="js/jquery-1.10.2.min.js"></script>
+    <script src="js/underscore-min.js"></script>s
+    <script src="js/leaflet.js"></script>
+    <script src="js/leaflet.ajax.min.js"></script>
+    <script src="js/select2.js"></script>
+    <script src="js/leaflet.spin.js"></script>
+    <script src="js/spin.js"></script>
+    <script src="js/Leaflet.Geodesic.min.js"></script>
 
-  <script src="js/BBVAService.js"></script>
-  
-</head>
+    <script src="js/MapHelper.js"></script>
+    <script src="js/BBVAService.js"></script>
+    <script src="js/common.js"></script>
 
-<body id="dummybodyid" style="">
 
-  <div id="map" class="leaflet-container leaflet-fade-anim" tabindex="0">
+  </head>
 
-  </div>
-  <div id="selector">
-    <div id="selector-pobreza" onmousedown="change_mode(&#39;pobreza&#39;);" class="selector">POBREZA</div>
-    <div id="selector-rezago" onmousedown="change_mode(&#39;rezago000510&#39;);" class="selector">REZAGO SOCIAL</div>
-  </div>
-  <div class="varlist" id="varlist_pobreza">
-    <div class="light text datos-title blue-light blue-text">Variables
-      <img style="float: right; margin-top: -5px;" height="30" width="48" src="img/personas.png">
+  <body id="dummybodyid" style="">
+
+    <div id="map" class="leaflet-container leaflet-fade-anim" tabindex="0">
+
     </div>
-    <div class="nombre-variable varname pobreza nombre-variable-selected">
-      <select id="cmbCategories" style="width:100%">
-      </select>
+    <div id="selector">
+      <div id="selector-pobreza" onmousedown="change_mode(&#39;pobreza&#39;);" class="selector">POBREZA</div>
+      <div id="selector-rezago" onmousedown="change_mode(&#39;rezago000510&#39;);" class="selector">REZAGO SOCIAL</div>
+    </div>
+    <div class="varlist" id="varlist_pobreza">
+      <div class="light text datos-title blue-light blue-text">Variables
+        <img style="float: right; margin-top: -5px;" height="30" width="48" src="img/personas.png">
+      </div>
+      <div class="nombre-variable varname nombre-variable-selected">
+        <select id="cmbCategories" style="width:100%">
+        </select>
+      </div>
+      <div class="nombre-variable varname nombre-variable-selected">
+        <select id="cmbZipCodes" style="width:100%">
+        </select>
+      </div>
+
+
+    </div>
+    <div id="slider-box">
+      <div class="dark year blue-dark selected-year"  id="20131101-20131130">Nov 13</div>
+      <div class="dark year blue-dark"  id="20131201-20131231">Dec 13</div>
+      <div class="dark year blue-dark"  id="20140101-20140131">Jan 14</div>
+      <div class="dark year blue-dark"  id="20140201-20140228">Feb 14</div>
+      <div class="dark year blue-dark"  id="20140301-20140331">Mar 14</div>
+      <div class="dark year blue-dark"  id="20140401-20140430">Apr 14</div>
     </div>
 
-  </div>
-  <div id="slider-box">
-    <div class="dark year blue-dark"  id="2000">Nov 13</div>
-    <div class="dark year blue-dark"  id="2005">Dec 13</div>
-    <div class="dark year blue-dark"  id="2010">Jan 14</div>
-    <div class="dark year blue-dark"  id="2000">Feb 14</div>
-    <div class="dark year blue-dark"  id="2005">Mar 14</div>
-    <div class="dark year blue-dark"  id="2010">Apr 14</div>
-  </div>
+    <script type="text/javascript" charset="utf-8">
+      $(document).ready(function() { 
+    // UI Elements
+    var ui_cmbCategories = $("#cmbCategories"),
+    ui_cmbZipCodes = $("#cmbZipCodes");
+    // Map Elements
+    var zipCodesLayer,
+    districtsLayer,
+    mainInfoPanel;
 
-  <script type="text/javascript" charset="utf-8">
-    $(document).ready(function() { 
-
-
-      function loadCmbCategories(){
-        var strCmd ='',
-        ui_cmbCategories = $("#cmbCategories");
-
-        strCmd +=  " <option value='all'>All Categories</option>";
-        BBVAService.getCategories(function(data){
-          data.forEach(function(item){
-            strCmd +=  "<optgroup value='"+ item.code +"' label='"+ item.description +"'>";
-            item.subcategories.forEach(function(subItem){
-              strCmd +=  " <option value='"+ subItem.code +"'>"+ subItem.code + " - " + subItem.description +"</option>";
-            });
-            strCmd +=  "</optgroup>";
-          });
-
-
-          ui_cmbCategories.html(strCmd);
-          ui_cmbCategories.select2();
-        });    
-      };
-      loadCmbCategories();
-
-
-    });
-
-    var geojsonLayer;
-    
-    
-    
-    // BBVAService.getCategories(function(data){
-
-    //   console.log('Categorias');
-    //   console.log(data);
-
-    // });    
-
-    // BBVAService.getRankingZipcodes(function(data){ 
-
-    //   console.log('Ranking ZipCodes');
-    //   console.log(data);
-
-    // });  
-
-    var getCustomerZipCodes_options = {
-      zipcode : 15390,
-      category : 'All',
-      date_min : '20140101',
-      date_max : '20140331',
-      by: 'month'
+    var optFilter = {
+      zipcode  : '06010' || null,
+      category : 'mx_mall' || null,
+      date_min : '20131101' || null,
+      date_max : '20131130' || null,
+      by       : 'month'
     };
-    BBVAService.getCustomerZipCodes(function(data){ 
 
-      console.log('CustomerZipCodes_options');
-      console.log(data);
-
-    });    
-
-
-
-function getColor(d) {
-  return d > 1000 ? '#800026' :
-  d > 500 ? '#BD0026' :
-  d > 200 ? '#E31A1C' :
-  d > 100 ? '#FC4E2A' :
-  d > 50 ? '#FD8D3C' :
-  d > 20 ? '#FEB24C' :
-  d > 10 ? '#FED976' :
-  '#CCCCCC'; 
-}
-
-function getFixedColor(feature) {
-  if (BBVAService.getRankingZipcodes_offline_index(feature.properties.POSTALCODE)){
-    return getColor(getRandomArbitrary(10, 1000));
-  }
-  return getColor(1);
-}
-
-function getRandomArbitrary(min, max) {
-  return Math.random() * (max - min) + min;
-}
-
-function style(feature) {
-  return {
-    weight: 1,
-    opacity: 1,
-    color: 'black',
-        //dashArray: '3',
-        fillOpacity: 0.4,
-        fillColor: getFixedColor(feature)
-      };
-    }
-    var layer;
-    
-    function highlightFeature(e) {
-      layer = e.target;
-
-      layer.setStyle({
-        weight: 5,
-        color: '#666',
-        dashArray: '',
-        fillOpacity: 0.7
-      });
-
-      if (!L.Browser.ie && !L.Browser.opera) {
-        layer.bringToFront();
-      }
-
-      info.update(layer.feature.properties);
-    }
-
-
-    function resetHighlight(e) {
-      geojsonLayer.resetStyle(e.target);
-      info.update();
-    }
-
-    function zoomToFeature(e) {
-      map.fitBounds(e.target.getBounds());
-    }
-
-    function onEachFeature(feature, layer) {
-      layer.on({
-        mouseover: highlightFeature,
-        mouseout: resetHighlight,
-        click: zoomToFeature
-      });
-    }
-
-
+    // defining map
     var map = new L.Map('map', {
       maxZoom: 20,
       minZoom: 1
@@ -201,64 +97,251 @@ function style(feature) {
       detectRetina: true
     }).addTo(map);
 
-    
-    // control that shows state info on hover
-    var info = L.control();
 
-    info.onAdd = function (map) {
-      this._div = L.DomUtil.create('div', 'info');
-      this.update();
-      return this._div;
-    };
+    ui_cmbCategories.on('change',function(e){
+      console.log('Categories combo change');  
+      var category_code = $(this).val();
 
-    info.update = function (props) {
-      if (props){
-        this._div.innerHTML = 
-        "<div id='datos_mun' style='z-index:9999;'>"+
-        " <div class='dark nom_mun blue-dark'>Info</div> " +
-        " <div class='mundata-box light state_box blue-light'> " +
-        "   <div class='state_name'>" + props.POSTALCODE + "</div> " +
-        "   <div class='num_mun'>"  + props.MUN_NAME +  "</div> " +
-        " </div> " +
-        " <div id='nom_var' class='box-title'></div> " +
-        " <div class='mundata-box beneficiarios_box'> " +
-        "   <div id='porcentaje' class='text beneficiarios blue-text'>--</div> " +
-        "   <div class='personas_box'> " +
-        "     <img src='img/h.png'> " +
-        "     <span style='margin-left: 3px;' id='personas' class='text blue-text'>--</span> " +
-        "   </div> " +
-        "   <div id='legend'> " +
-        "     <div id='legend-rezago000510'> " +
-        "       <div style='background-color: #edf8e9;' class='legend-box'></div> " +
-        "       <div style='background-color: #bae4b3;' class='legend-box'></div> " +
-        "       <div style='background-color: #74c476;' class='legend-box'></div> " +
-        "       <div style='background-color: #31a354;' class='legend-box'></div> " +
-        "       <div style='background-color: #006d2c;' class='legend-box'></div> " +
-        "       <div class='legend-box'>&lt; 20%</div> " +
-        "       <div class='legend-box'>20% - 40%</div> " +
-        "       <div class='legend-box'>40% - 60%</div> " +
-        "       <div class='legend-box'>60% - 80%</div> " +
-        "       <div class='legend-box'>&gt; 80%</div> " +
-        "       <div style='clear:both;'></div> " +
-        "     </div> " +
-        "   </div> " +
-        " </div> " +
-        " </div>";
-
-      }
-    };
-
-    info.addTo(map);
-
-    geojsonLayer = new L.GeoJSON.AJAX("data/df-zipcodes.geojson", {
-      style: style,
-      onEachFeature: onEachFeature//,
-      // pointToLayer: function (featu\re, latlng) {
-      //   return L.circleMarker(latlng);
-      // }
+      if (category_code){
+        optFilter.category = category_code;
+        triggerOptFilter();
+      }        
     });
-    map.addLayer(geojsonLayer);
-  </script>
+
+    ui_cmbZipCodes.on('change',function(e){
+      console.log('ZipCode combo change');
+      var zip_code = $(this).val();
+
+      if (zip_code){
+        optFilter.zipcode = zip_code;
+        triggerOptFilter();
+      }        
+    });
+
+    var ui_optYear = $(".year");
+    ui_optYear.click(function(event) {
+      ui_optYear.siblings().removeClass("selected-year");
+      $(event.target).addClass("selected-year")
+
+      if (event.target.id){
+        optFilter.date_min = event.target.id.split('-')[0];
+        optFilter.date_max = event.target.id.split('-')[1];
+        triggerOptFilter();
+      }
+
+    });
+
+
+    function triggerOptFilter(){
+      console.log('trigger');
+
+      var opts = {
+        zipcode : optFilter.zipcode,
+        category : optFilter.category,
+        date_min : optFilter.date_min,
+        date_max : optFilter.date_max,
+        by: optFilter.by
+      };
+
+      BBVAService.getCustomerZipCodes(opts.zipcode,opts.category,opts.date_min,opts.date_max,opts.by, function(data){
+       // var mainZipcode = '',
+       // relatedZipcodes = [];
+
+       console.log('CustomerZipCodes_options');
+       console.log(data);
+
+        //TODO: FIX THIS!!! Just a walkaround
+        window.mainZipcode = opts.zipcode;
+        window.relatedZipcodes = data[0].zipcodes;
+
+        function fixedColorByType(feature){
+
+          var selectedZipCode = feature.properties.POSTALCODE;
+          var res = _.find(relatedZipcodes, function(obj){ return obj.label==selectedZipCode })
+
+          if (selectedZipCode == mainZipcode || res !== undefined){
+            if (selectedZipCode==window.mainZipcode)
+              return 'red';                
+            return 'black';  
+          }             
+          return 'grey';
+
+        };
+
+        function style(feature) {
+          return {
+            weight: 1,
+            opacity: 1,
+            color: 'black',
+            fillOpacity: 0.4,
+            fillColor: fixedColorByType(feature)
+          };
+        }
+        var layer;
+        
+        function highlightFeature(e) {
+          layer = e.target;
+
+          layer.setStyle({
+            weight: 5,
+            color: '#666',
+            dashArray: '',
+            fillOpacity: 0.7
+          });
+
+          if (!L.Browser.ie && !L.Browser.opera) {
+            layer.bringToFront();
+          }
+
+          mainInfoPanel.update(layer.feature.properties);
+        }
+
+
+        function resetHighlight(e) {
+          zipCodesLayer.resetStyle(e.target);
+          mainInfoPanel.update();
+        }
+
+        function onEachFeature(feature, layer) {
+          var selectedZipCode = feature.properties.POSTALCODE;
+          if (selectedZipCode == window.mainZipcode){
+            map.fitBounds(layer.getBounds(),{maxZoom: 12, padding: [50,50]});
+          }
+
+
+          layer.on({
+            mouseover: highlightFeature,
+            mouseout: resetHighlight,
+            click: function(e){
+              var selectedZipCode = feature.properties.POSTALCODE;
+              var res = _.find(relatedZipcodes, function(obj){ return obj.label==selectedZipCode })
+
+              if (selectedZipCode == mainZipcode || res !== undefined){
+                map.fitBounds(e.target.getBounds(),{maxZoom: 12, padding: [50,50]});
+
+              }
+              else{
+                optFilter.zipcode = selectedZipCode;
+                ui_cmbZipCodes.select2('val', selectedZipCode);
+                triggerOptFilter();
+              }
+            }
+          });
+        }
+
+        function filter(feature, layer) {
+          var selectedZipCode = feature.properties.POSTALCODE;
+          var res = _.find(relatedZipcodes, function(obj){ return obj.label==selectedZipCode })
+
+          return (selectedZipCode == mainZipcode || res !== undefined)
+        }
+
+        if (zipCodesLayer !== undefined){
+          map.removeLayer(zipCodesLayer);           
+        }
+
+        zipCodesLayer = new L.GeoJSON.AJAX("data/df-zipcodes.geojson", {
+          style: style,
+          onEachFeature: onEachFeature,
+         // filter: filter
+       });
+        map.addLayer(zipCodesLayer);
+
+      });  
+}
+
+triggerOptFilter();
+
+
+function style_districtsLayer(feature) {
+  return {
+    weight: 1,
+    opacity: 1,
+    color: 'black',
+    fillOpacity: 0.4,
+    fillColor: getFixedColor(feature)
+  };
+}
+    // Add Mexico DF districts to map
+    districtsLayer = new L.GeoJSON.AJAX("data/df-municipalities.geojson", {
+      style: style_districtsLayer
+    });
+    map.addLayer(districtsLayer);  
+
+  // control that shows state info on hover
+  var mainInfoPanel = L.control();
+
+  mainInfoPanel.onAdd = function (map) {
+    this._div = L.DomUtil.create('div', 'info');
+    this.update();
+    return this._div;
+  };
+
+  mainInfoPanel.update = function (props) {
+    if (props){
+      this._div.innerHTML = 
+      "<div id='datos_mun' style='z-index:9999;'>"+
+      " <div class='dark nom_mun blue-dark'>Info</div> " +
+      " <div class='mundata-box light state_box blue-light'> " +
+      "   <div class='state_name'>" + props.POSTALCODE + "</div> " +
+      "   <div class='num_mun'>"  + props.MUN_NAME +  "</div> " +
+      " </div> " +
+      " <div id='nom_var' class='box-title'></div> " +
+      " <div class='mundata-box beneficiarios_box'> " +
+      "   <div id='porcentaje' class='text beneficiarios blue-text'>--</div> " +
+      "   <div class='personas_box'> " +
+      "     <img src='img/h.png'> " +
+      "     <span style='margin-left: 3px;' id='personas' class='text blue-text'>--</span> " +
+      "   </div> " +
+      "   <div id='legend'> " +
+      "     <div id='legend-rezago000510'> " +
+      "       <div style='background-color: #edf8e9;' class='legend-box'></div> " +
+      "       <div style='background-color: #bae4b3;' class='legend-box'></div> " +
+      "       <div style='background-color: #74c476;' class='legend-box'></div> " +
+      "       <div style='background-color: #31a354;' class='legend-box'></div> " +
+      "       <div style='background-color: #006d2c;' class='legend-box'></div> " +
+      "       <div class='legend-box'>&lt; 20%</div> " +
+      "       <div class='legend-box'>20% - 40%</div> " +
+      "       <div class='legend-box'>40% - 60%</div> " +
+      "       <div class='legend-box'>60% - 80%</div> " +
+      "       <div class='legend-box'>&gt; 80%</div> " +
+      "       <div style='clear:both;'></div> " +
+      "     </div> " +
+      "   </div> " +
+      " </div> " +
+      " </div>";
+
+    }
+  };
+
+  mainInfoPanel.addTo(map);
+
+
+
+});
+
+
+
+
+  //////////////////// CURVES 
+  // var Geodesic = L.geodesic([], {
+  //   weight: 3, 
+  //   opacity: 1.0,
+  //   color: 'blue',
+  //   steps: 500
+  // }).addTo(map);
+
+
+  // var berlin = new L.LatLng( 19.40054459862468, -99.14199829101561); 
+  // var losangeles = new L.LatLng(    19.491191339807546 , -99.20997619628906);
+  // var losangeles2 = new L.LatLng(  19.43616185591159 , -99.10491943359375);
+  // var losangeles3 = new L.LatLng(  19.377875009841766 , -99.10835266113281);
+  // var losangeles4 = new L.LatLng( 19.386943224150713 , -99.20997619628906);
+
+  // Geodesic.setLatLngs([[berlin, losangeles],[berlin, losangeles2],[berlin, losangeles3],[berlin, losangeles4]]);
+
+
+</script>
 </body>
 
 </html>
