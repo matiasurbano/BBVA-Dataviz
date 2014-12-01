@@ -75,7 +75,31 @@ var BBVAService = {
       },
       beforeSend: setHeader
     });
-  }
+  },
+  getGenderByZipCodes: function(zipcode,category_code,min_date,max_date,callback){
+    var uri = 'https://apis.bbvabancomer.com/datathon/zipcodes/_ZIPCODE_/gender_distribution';
+    uri = uri.replace('_ZIPCODE_',zipcode);
 
+    $.ajax({
+      url: uri,
+      type: 'GET',
+      dataType: 'json',
+      data : {
+        category:category_code,
+        date_min:min_date,
+        date_max:max_date,
+        group_by:'month'
+      },
+      success: function (data) {
+        if (data.result.code === 200) {
+          callback(data.data.stats);
+        }
+      },
+      error: function () {
+        console.log('Error getting categories.');
+      },
+      beforeSend: setHeader
+    });
+  }
 
 };
