@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="css/leaflet.css">
     <link rel="stylesheet" href="css/jquery-ui.css">
     <link rel="stylesheet" href="css/select2.css">
+    <link rel="stylesheet" href="css/toasty-min.css">
     <link rel="stylesheet" href="css/style.css">
 
 
@@ -24,7 +25,7 @@
     <script src="js/select2.js"></script>
     <script src="js/leaflet.spin.js"></script>
     <script src="js/spin.js"></script>
-    <script src="js/Leaflet.Geodesic.min.js"></script>
+    <script src="js/toasty-min.js"></script>
 
     <script src="js/MapHelper.js"></script>
     <script src="js/BBVAService.js"></script>
@@ -41,20 +42,29 @@
       <div id="selector-pobreza" class="selector">Control Panel</div>
     </div>
     <div class="varlist" id="varlist_pobreza">
-<!--       <div class="light text datos-title blue-light blue-text">Categories
-        <img style="float: right; margin-top: -5px;" height="30" width="48" src="img/personas.png">
-      </div> -->
       <div class="nombre-variable varname nombre-variable-selected">
         <select id="cmbCategories" style="width:100%">
         </select>
       </div>
- <!--      <div class="light text datos-title blue-light blue-text">ZipCode
-        <img style="float: right; margin-top: -5px;" height="30" width="48" src="img/personas.png">
-      </div> -->
       <div class="nombre-variable varname nombre-variable-selected">
         <select id="cmbZipCodes" style="width:100%">
         </select>
       </div>
+    </div>
+
+    <div class="box-title" style="
+        position: absolute;
+        bottom: 24px;
+        right: 15px;
+       ">
+        <div id="legend">
+            <div id="legend-rezago000510">
+                <div style="background-color:red;" class="legend-box">Selected</div>
+                <div style="background-color:black;" class="legend-box">Origin</div>
+                <div style="background-color:grey;" class="legend-box">Not apply</div>
+                <div style="clear:both;"></div>
+            </div>
+        </div>
     </div>
 
     <div id="slider-box">
@@ -130,7 +140,7 @@
       }
 
     });
-
+      
 
     function triggerOptFilter(){
       console.log('trigger');
@@ -278,51 +288,38 @@ function style_districtsLayer(feature) {
 
   mainInfoPanel.update = function (props) {
     var that = this,
-        panelHTML ='';
+    panelHTML ='';
 
 
     if (props){
 
-    var opts = {
-      category : optFilter.category,
-      date_min : optFilter.date_min,
-      date_max : optFilter.date_max
-    };
+      var opts = {
+        category : optFilter.category,
+        date_min : optFilter.date_min,
+        date_max : optFilter.date_max
+      };
 
-    var selectedZipCode = props.POSTALCODE;
+      var selectedZipCode = props.POSTALCODE;
 
-    if (selectedZipCode == mainZipcode){
-
-
-        panelHTML += 
-        "<div id='datos_mun' style='z-index:9999;'>"+
-        " <div class='dark nom_mun blue-dark'>ZipCode Details</div> " +
-        " <div class='mundata-box light state_box blue-light'> " +
-        "   <div class='state_name'>ZipCode:      " + props.POSTALCODE + "</div> " +
-        "   <div class='num_mun'   >Municipality: "  + props.MUN_NAME +  "</div> " +
-        " </div> ";
-
-       panelHTML += 
-        " <div class='box-title'> " + 
-        "      <div class='light text datos-title' style='background: white; color: black;'>" +
-        "            <img style=' margin-top: -5px;' height='22' width='22' src='img/spinner.gif'>  " + 
-        "      </div> " + 
-        "  </div> ";
+      if (selectedZipCode == mainZipcode){
 
 
-        panelHTML += 
-        " <div class='box-title'> " + 
-        "     <div id='legend'> " + 
-        "         <div id='legend-rezago000510'> " + 
-        "             <div style='background-color:red;'    class='legend-box'>Selected</div> " + 
-        "             <div style='background-color:black;'  class='legend-box'>Origin</div> " + 
-        "             <div style='background-color:grey;'  class='legend-box'>Not apply</div> " + 
-        "             <div style='clear:both;'></div> " + 
-        "         </div> " + 
-        "     </div> " + 
-        " </div> " +
-        " </div>";
-      that._div.innerHTML = panelHTML;
+        // panelHTML += 
+        // "<div id='datos_mun' style='z-index:9999;'>"+
+        // " <div class='dark nom_mun blue-dark'>ZipCode Details</div> " +
+        // " <div class='mundata-box light state_box blue-light'> " +
+        // "   <div class='state_name'>ZipCode:      " + props.POSTALCODE + "</div> " +
+        // "   <div class='num_mun'   >Municipality: "  + props.MUN_NAME +  "</div> " +
+        // " </div> ";
+
+        // panelHTML += 
+        // " <div class='box-title'> " + 
+        // "      <div class='light text datos-title' style='background: white; color: black;'>" +
+        // "            <img style=' margin-top: -5px;' height='22' width='22' src='img/spinner.gif'>  " + 
+        // "      </div> " + 
+        // "  </div> ";
+
+        // that._div.innerHTML = panelHTML;
 
 
       // get more informacion about
@@ -338,7 +335,8 @@ function style_districtsLayer(feature) {
           wom_num_payments = data[0].histogram[1].num_payments;
           wom_avg = data[0].histogram[1].avg
         }
-   
+
+        that._div.innerHTML = '';
         panelHTML += 
         "<div id='datos_mun' style='z-index:9999;'>"+
         " <div class='dark nom_mun blue-dark'>ZipCode Details</div> " +
@@ -347,94 +345,50 @@ function style_districtsLayer(feature) {
         "   <div class='num_mun'   >Municipality: "  + props.MUN_NAME +  "</div> " +
         " </div> ";
 
-         if (data[0] && data[0].histogram[0]){
+        if (data[0] && data[0].histogram[0]){
 
-        panelHTML += 
-        " <div class='box-title'> " + 
-        "      <div class='light text datos-title' style='background: white; color: black;'>Avg.  <b>" + men_avg + "</b> Num. <b>" + men_num_payments + " </b> " +
-        "            <img style='float: left; margin-top: -5px;' height='25' width='35' src='img/men.png'>  " + 
-        "      </div> " + 
-        "  </div> " + 
-        " <div class='box-title'> " + 
-        "      <div class='light text datos-title' style='background: white; color: black;'>Avg.  <b>" + wom_avg + "</b> Num. <b>" + wom_num_payments +  " </b> " +
-        "            <img style='float: left; margin-top: -5px;' height='25' width='35' src='img/women.png'>  " + 
-        "      </div> " +  
-        "  </div> ";
+          panelHTML += 
+          " <div class='box-title'> " + 
+          "      <div class='light text datos-title' style='background: white; color: black;'>Avg.  <b>" + men_avg + "</b> Num. <b>" + men_num_payments + " </b> " +
+          "            <img style='float: left; margin-top: -5px;' height='25' width='35' src='img/men.png'>  " + 
+          "      </div> " + 
+          "  </div> " + 
+          " <div class='box-title'> " + 
+          "      <div class='light text datos-title' style='background: white; color: black;'>Avg.  <b>" + wom_avg + "</b> Num. <b>" + wom_num_payments +  " </b> " +
+          "            <img style='float: left; margin-top: -5px;' height='25' width='35' src='img/women.png'>  " + 
+          "      </div> " +  
+          "  </div> ";
 
         }
 
-        panelHTML += 
-        " <div class='box-title'> " + 
-        "     <div id='legend'> " + 
-        "         <div id='legend-rezago000510'> " + 
-        "             <div style='background-color:red;'    class='legend-box'>Selected</div> " + 
-        "             <div style='background-color:black;'  class='legend-box'>Origin</div> " + 
-        "             <div style='background-color:grey;'  class='legend-box'>Not apply</div> " + 
-        "             <div style='clear:both;'></div> " + 
-        "         </div> " + 
-        "     </div> " + 
-        " </div> " +
-        " </div>";
-
-         that._div.innerHTML = panelHTML;
+        that._div.innerHTML = panelHTML;
       });
 
 
-    }else{
-       that._div.innerHTML = 
-            "<div id='datos_mun' style='z-index:9999;'>"+
-            " <div class='dark nom_mun blue-dark'>ZipCode Details</div> " +
-            " <div class='mundata-box light state_box blue-light'> " +
-            "   <div class='state_name'>ZipCode:      " + props.POSTALCODE + "</div> " +
-            "   <div class='num_mun'   >Municipality: "  + props.MUN_NAME +  "</div> " +
-            " </div> " +      
-            " <div class='box-title'> " + 
-            "     <div id='legend'> " + 
-            "         <div id='legend-rezago000510'> " + 
-            "             <div style='background-color:red;'    class='legend-box'>Selected</div> " + 
-            "             <div style='background-color:black;'  class='legend-box'>Origin</div> " + 
-            "             <div style='background-color:grey;'  class='legend-box'>Not apply</div> " + 
-            "             <div style='clear:both;'></div> " + 
-            "         </div> " + 
-            "     </div> " + 
-            " </div> " +
-            " </div>";
-          
+}else{
+ that._div.innerHTML = 
+ "<div id='datos_mun' style='z-index:9999;'>"+
+ " <div class='dark nom_mun blue-dark'>ZipCode Details</div> " +
+ " <div class='mundata-box light state_box blue-light'> " +
+ "   <div class='state_name'>ZipCode:      " + props.POSTALCODE + "</div> " +
+ "   <div class='num_mun'   >Municipality: "  + props.MUN_NAME +  "</div> " +
+ " </div> ";
 
-    }
+
+}
 
 
 
 
 
-    }
-  };
+}
+};
 
-  mainInfoPanel.addTo(map);
+mainInfoPanel.addTo(map);
 
 
 
 });
-
-
-
-
-  //////////////////// CURVES 
-  // var Geodesic = L.geodesic([], {
-  //   weight: 3, 
-  //   opacity: 1.0,
-  //   color: 'blue',
-  //   steps: 500
-  // }).addTo(map);
-
-
-  // var berlin = new L.LatLng( 19.40054459862468, -99.14199829101561); 
-  // var losangeles = new L.LatLng(    19.491191339807546 , -99.20997619628906);
-  // var losangeles2 = new L.LatLng(  19.43616185591159 , -99.10491943359375);
-  // var losangeles3 = new L.LatLng(  19.377875009841766 , -99.10835266113281);
-  // var losangeles4 = new L.LatLng( 19.386943224150713 , -99.20997619628906);
-
-  // Geodesic.setLatLngs([[berlin, losangeles],[berlin, losangeles2],[berlin, losangeles3],[berlin, losangeles4]]);
 
 
 </script>
