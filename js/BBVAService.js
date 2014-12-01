@@ -17,9 +17,19 @@ var BBVAService = {
         if (data.result.code === 200) {
           callback(data.data.categories);
         }
+       else{
+          $().toasty({
+              message: "There is no data for this selection.",
+              autoHide: 2000
+          });          
+        }
       },
       error: function () {
         console.log('Error getting categories.');
+        $().toasty({
+            message: "There is no data for this selection.",
+            autoHide: 2000
+        });              
       },
       beforeSend: setHeader
     });
@@ -42,9 +52,21 @@ var BBVAService = {
         if (data.result.code === 200) {
           callback(data.data.zip_codes);
         }
+        else{
+          $().toasty({
+              message: "There is no data for this selection.",
+              autoHide: 2000
+          });          
+        }
       },
       error: function () {
-        console.log('Error getting categories.');
+        console.log('Error getting zipcode ranking.');
+        
+          $().toasty({
+              message: "There is no data for this selection.",
+              autoHide: 2000
+          });          
+        
       },
       beforeSend: setHeader
     });
@@ -69,9 +91,19 @@ var BBVAService = {
         if (data.result.code === 200) {
           callback(data.data.stats);
         }
+        else{
+          $().toasty({
+              message: "There is no data for this selection.",
+              autoHide: 2000
+          });          
+        }        
       },
       error: function () {
-        console.log('Error getting categories.');
+        console.log('Error getting cutomers by zipcode.');
+          $().toasty({
+              message: "There is no data for this selection.",
+              autoHide: 2000
+          });              
       },
       beforeSend: setHeader
     });
@@ -94,9 +126,15 @@ var BBVAService = {
         if (data.result.code === 200) {
           callback(data.data.stats);
         }
+        else{
+          $().toasty({
+              message: "There is no data for this selection.",
+              autoHide: 2000
+          });          
+        }
       },
       error: function () {
-        console.log('Error getting categories.');
+        console.log('Error getting gender by zipcodes.');
       },
       beforeSend: setHeader
     });
