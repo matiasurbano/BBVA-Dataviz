@@ -31,12 +31,11 @@ img#img_header {
 }
 #legend {
       background-color: #fff;
-      position: absolute;
+      position: relative;
       width: 220px;
       padding: 5px 5px;
       color: #000;
       text-align: center;
-      top: 90px;
 }
 .legend-title {
       font-size: 12px;
@@ -51,9 +50,10 @@ img#img_header {
       float: left;
       margin-left: 5px;
       height: 20px;
-      width: 38px;
-      font-size: 8px;
-      color: #999;
+      width: 65px;
+      font-size: 10px;
+      color: white;
+      line-height: 19px;
 }
 #datos_mun {
       background-color: #fff;
@@ -76,22 +76,23 @@ img#img_header {
 #datos_mun .state_box {
       height: 66px;
       position: relative;
-      color: #fff;
+      color: black;
 }
 .state_box .state_name {
       position: absolute;
-      left: 90px;
-      top: 15px;
-      font-size: 11px;
+      left: 15px;
+      top: 12px;
+      font-size: 14px;
       text-transform: uppercase;
       font-weight: 700;
       width: 200px;
 }
 .state_box .num_mun {
       position: absolute;
-      left: 90px;
+      left: 15px;
       top: 30px;
       font-size: 11px;
+      text-transform: uppercase;
 }
 #datos_mun .nom_mun {
       font-size: 14px;
@@ -100,7 +101,6 @@ img#img_header {
       color: #fff;
 }
 #datos_mun .box-title {
-      padding: 5px 10px;
       font-size: 12px;
       text-transform: uppercase;
 }
@@ -157,14 +157,15 @@ img#img_header {
       cursor: pointer;
 }
 #selector-pobreza {
-      background-color: #342170;
+      background-color: #0093E0;
       line-height: 40px;
+      width: 210px;
 }
 #selector-rezago {
       background-color: #16b348;
 }
 #selector-pobreza:hover {
-      background-color: rgb(180,171,201);
+      background-color: #0093E0;
 }
 #selector-rezago:hover {
       background-color: rgb(189,234,203);
@@ -207,7 +208,7 @@ img#img_header {
       background-color: rgb(189,234,203);
 }
 .blue-light.varname:hover {
-      background-color: rgb(180,171,201);
+      background-color: #A0D7F4;
 }
 .agency {
       padding: 1px 10px;
@@ -218,7 +219,7 @@ img#img_header {
       font-size: 13px;
 }
 .blue-dark {
-      background-color: #342170;
+      background-color: #0093E0;
 }
 .green-dark {
       background-color: #16b348;
@@ -230,20 +231,20 @@ img#img_header {
       color: #16b348;
 }
 .blue-light {
-      background-color: rgb(180,171,201);
+      background-color: #A0D7F4;
 }
 .green-light {
       background-color: rgb(189,234,203);
 }
 .year.blue-dark:hover {
-      background-color: rgb(180,171,201);
+      background-color: #0093E0;
 }
 .year.green-dark:hover {
       background-color: rgb(189,234,203);
 }
 .selected-year.blue-dark {
       color: #000;
-      background-color: rgb(180,171,201);
+      background-color: #0093E0;
 }
 .selected-year.green-dark {
       color: #000;

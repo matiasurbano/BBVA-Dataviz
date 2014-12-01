@@ -9,7 +9,7 @@ $(document).ready(function() {
     data.forEach(function(item){
       strCmd +=  "<optgroup value='"+ item.code +"' label='"+ item.description +"'>";
       item.subcategories.forEach(function(subItem){
-        strCmd +=  " <option value='"+ subItem.code +"'>"+ subItem.code + " - " + subItem.description +"</option>";
+        strCmd +=  " <option value='"+ subItem.code +"'>"+ subItem.description +"</option>";
       });
       strCmd +=  "</optgroup>";
     });
@@ -18,7 +18,7 @@ $(document).ready(function() {
     ui_cmbCategories.html(strCmd);
     ui_cmbCategories.select2();
 
-    ui_cmbCategories.select2('val', 'mx_mall');
+    ui_cmbCategories.select2('val', 'mx_fastfood');
   });    
 };
 loadCmbCategories();
