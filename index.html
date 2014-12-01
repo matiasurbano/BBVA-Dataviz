@@ -37,6 +37,16 @@
   </head>
 
   <body id="dummybodyid" style="">
+
+    <div id="selector-pobreza" class="selector" style="
+        position: absolute;
+        top: 10px;
+        z-index: 999;
+        width: 100%;
+        height: 30px;
+        line-height: 30px;
+        opacity: 0.8;     filter: alpha(opacity=80); /* For IE8 and earlier */;
+    ">Air Quality and the Market</div>
     <div id="map" class="leaflet-container leaflet-fade-anim" tabindex="0">
 
     </div>
@@ -328,12 +338,20 @@ function style_districtsLayer(feature) {
 var airQualityMarkers = [];
   airQuality.forEach(function(elem){
 
+    var markerClass='';
+    if (elem.aqi<50) markerClass = 'count-icon-00-50';
+    else if (elem.aqi>50 && elem.aqi<100) markerClass = 'count-icon-50-100';
+    else if (elem.aqi>100 && elem.aqi<150) markerClass = 'count-icon-100-150';
+    else if (elem.aqi>150 && elem.aqi<200) markerClass = 'count-icon-150-200';
+    else markerClass = 'count-icon';
+
     var marker = L.marker([
         elem.lat,
         elem.lon
     ], {
         icon: L.divIcon({
-            className: 'count-icon',
+            // className: 'count-icon',
+            className: markerClass,
             html: elem.aqi,
             iconSize: [40, 40]
         })

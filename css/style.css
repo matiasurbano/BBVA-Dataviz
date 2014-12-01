@@ -12,16 +12,59 @@ img#img_header {
 }
 
 .count-icon {
-  background:#ff8888;
-  border:5px solid rgba(255,255,255,0.5);
-  color:#fff;
-  font-weight:bold;
-  text-align:center;
-  border-radius:50%;
-  line-height:30px;
-  }
+    background:#ff8888;
+    border:5px solid black;
+    color:black;
+    font-weight:bold;
+    text-align:center;
+    border-radius:50%;
+    line-height:40px;
+}
 
-  
+
+.count-icon-00-50 {
+    background:#009966;
+    border:5px solid black;
+    color:black;
+    font-weight:bold;
+    text-align:center;
+    border-radius:50%;
+    line-height:40px;
+}
+
+.count-icon-50-100 {
+    background:#ffde33;
+    border:5px solid black;
+    color:black;
+    font-weight:bold;
+    text-align:center;
+    border-radius:50%;
+    line-height:40px;
+}
+
+
+.count-icon-100-150 {
+    background:#cc0033;
+    border:5px solid black;
+    color:black;
+    font-weight:bold;
+    text-align:center;
+    border-radius:50%;
+    line-height:40px;
+}
+
+.count-icon-150-200 {
+    background:#cc0033;
+    border:5px solid black;
+    color:black;
+    font-weight:bold;
+    text-align:center;
+    border-radius:50%;
+    line-height:40px;
+}
+
+
+
 #map {
       position: absolute;
       width: 100%;
