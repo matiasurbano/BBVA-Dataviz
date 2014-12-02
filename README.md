@@ -1,4 +1,4 @@
-THE DATA VISUALIZATION
+Air Quality and the Market 
 =======================
 
 # [![Demo](https://raw.githubusercontent.com/matiasurbano/BBVA-Dataviz/gh-pages/docs/dataviz.png)](http://http://matiasurbano.github.io/BBVA-Dataviz)
