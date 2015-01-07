@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="css/select2.css">
     <link rel="stylesheet" href="css/toasty-min.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/c3.min.css">
 
 
     <script src="js/jquery-1.10.2.min.js"></script>
@@ -26,6 +27,8 @@
     <script src="js/leaflet.spin.js"></script>
     <script src="js/spin.js"></script>
     <script src="js/toasty-min.js"></script>
+    <script src="js/d3.v3.min.js"></script>
+    <script src="js/c3.min.js"></script>
 
 
     <script src="js/AirQualityService.js"></script>
@@ -79,6 +82,8 @@
         </div>
     </div>
 
+<div id="chart" style="width:50px;"></div>  
+
     <div id="slider-box">
       <div class="dark year blue-dark selected-year"  id="20131101-20131130">Nov 13</div>
       <div class="dark year blue-dark"  id="20131201-20131231">Dec 13</div>
@@ -96,8 +101,7 @@
     var zipCodesLayer,
     districtsLayer,
     mainInfoPanel,
-    airQualityLayer;
-
+    airQualityLayer;  
 
     var optFilter = {
       zipcode  : '06010' || null,
@@ -143,7 +147,6 @@
       }
     });
     function triggerOptFilter(){
-      console.log('trigger');
       var opts = {
         zipcode : optFilter.zipcode,
         category : optFilter.category,
@@ -175,7 +178,7 @@
             opacity: 1,
             color: 'black',
             fillOpacity: 0.7,
-            fillColor: fixedColorByType(feature)
+            fillColor: fixedColorByType(feature)  
           };
         }
         var layer;
@@ -199,24 +202,38 @@
         }
         function onEachFeature(feature, layer) {
           var selectedZipCode = feature.properties.POSTALCODE;
-          if (selectedZipCode == window.mainZipcode){
-            map.fitBounds(layer.getBounds(),{maxZoom: 12, padding: [50,50]});
-          }
-          layer.on({
-            mouseover: highlightFeature,
-            mouseout: resetHighlight,
-            click: function(e){
+          var areaClick_handler = function(e){
               var selectedZipCode = feature.properties.POSTALCODE;
-              var res = _.find(relatedZipcodes, function(obj){ return obj.label==selectedZipCode })
-              if (selectedZipCode == mainZipcode || res !== undefined){
-                map.fitBounds(e.target.getBounds(),{maxZoom: 12, padding: [50,50]});
-              }
-              else{
-                optFilter.zipcode = selectedZipCode;
-                ui_cmbZipCodes.select2('val', selectedZipCode);
-                triggerOptFilter();
-              }
-            }
+
+              optFilter.zipcode = selectedZipCode;
+              ui_cmbZipCodes.select2('val', selectedZipCode);
+              triggerOptFilter();
+
+            };
+
+          if (selectedZipCode == window.mainZipcode){
+            map.fitBounds(layer.getBounds(),{maxZoom: 12, padding: [50,50]});          
+          }
+
+          var res = _.find(relatedZipcodes, function(obj){ return obj.label==selectedZipCode })
+          if (selectedZipCode == mainZipcode || res !== undefined){
+            var layerCenter = layer.getBounds();
+            var zipLabel = L.marker(layerCenter.getCenter(), {
+              icon: L.divIcon({                
+                className: 'text-labels', 
+                html: selectedZipCode
+              }),
+              draggable: false           
+            });
+            zipLabel.on('click',areaClick_handler)
+            zipLabel.addTo(zipCodesLayer); 
+          }      
+
+
+          layer.on({
+            // mouseover: highlightFeature,
+            // mouseout: resetHighlight,
+            click: areaClick_handler
           });
         }
         function filter(feature, layer) {
@@ -225,13 +242,12 @@
           return (selectedZipCode == mainZipcode || res !== undefined)
         }
         if (zipCodesLayer !== undefined){
-          map.removeLayer(zipCodesLayer);           
+          map.removeLayer(zipCodesLayer);  
         }
         zipCodesLayer = new L.GeoJSON.AJAX("data/df-zipcodes.geojson", {
           style: style,
-          onEachFeature: onEachFeature,
-         // filter: filter
-       });
+          onEachFeature: onEachFeature
+       });       
         map.addLayer(zipCodesLayer);
       });  
 }
@@ -335,6 +351,29 @@ function style_districtsLayer(feature) {
   mainInfoPanel.addTo(map);
 
 
+  var chart = c3.generate({
+    bindto: '#chart',
+    label: {
+      show: false
+    },
+    data: {
+      columns: [
+      ['data1', 30],
+      ['data2', 120],
+      ],
+      type : 'pie',
+      onclick: function (d, i) { console.log("onclick", d, i); },
+      onmouseover: function (d, i) { console.log("onmouseover", d, i); },
+      onmouseout: function (d, i) { console.log("onmouseout", d, i); }
+    },
+    donut: {
+      title: "average"
+    }
+  });
+
+
+
+
 var airQualityMarkers = [];
   airQuality.forEach(function(elem){
 
@@ -350,7 +389,6 @@ var airQualityMarkers = [];
         elem.lon
     ], {
         icon: L.divIcon({
-            // className: 'count-icon',
             className: markerClass,
             html: elem.aqi,
             iconSize: [40, 40]
@@ -361,17 +399,6 @@ var airQualityMarkers = [];
     marker.bindPopup(imageInfo).openPopup();
     marker.addTo(map);
 });
-
-var popup = L.popup();
-
-function onMapClick(e) {
-  popup
-    .setLatLng(e.latlng)
-    .setContent("No action here!")
-    .openOn(map);
-}
-
-map.on('click', onMapClick);
 
 
 
