@@ -22,3 +22,12 @@ function getRandomArbitrary(min, max) {
 }
 
 
+function style_districtsLayer(feature) {
+  return {
+    weight: 1,
+    opacity: 1,
+    color: 'black',
+    fillOpacity: 0.4,
+    fillColor: getFixedColor(feature)
+  };
+}

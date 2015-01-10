@@ -109,13 +109,14 @@ img#img_header {
   color: white;
   line-height: 19px;
 }
-#datos_mun {
+#panelInfo {
+  display: none;
   background-color: #fff;
   font-family: "Roboto", "Arial", sans-serif;
   position: absolute;
   top: 130px;
   right: 20px;
-  width: 230px;
+  width: 320px;
 }
 #nom_var {
   padding: 5px;
@@ -127,7 +128,7 @@ img#img_header {
   position: relative;
   height: 110px;
 }
-#datos_mun .state_box {
+#panelInfo .state_box {
   height: 66px;
   position: relative;
   color: black;
@@ -148,13 +149,13 @@ img#img_header {
   font-size: 11px;
   text-transform: uppercase;
 }
-#datos_mun .nom_mun {
+#panelInfo .nom_mun {
   font-size: 14px;
   padding: 5px 10px;
   font-weight: 700;
   color: #fff;
 }
-#datos_mun .box-title {
+#panelInfo .box-title {
   font-size: 12px;
   text-transform: uppercase;
 }
@@ -324,5 +325,4 @@ img#img_header {
 .text-labels {
   font-size: 0.6em;
   font-weight: bold; 
-  z-index: -1000;
 }
