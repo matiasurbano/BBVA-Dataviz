@@ -34,12 +34,46 @@
     <script src="js/AirQualityService.js"></script>
     <script src="js/MapHelper.js"></script>
     <script src="js/BBVAService.js"></script>
+    <script src="js/GoogleService.js"></script>
     <script src="js/common.js"></script>
 
 
   </head>
 
   <body id="dummybodyid" style="">
+ 
+    <script>
+      // window.fbAsyncInit = function() {
+      //   FB.init({
+      //     appId      : '1534259746850490',
+      //     xfbml      : true,
+      //     version    : 'v2.1'
+      //   });
+
+
+      // FB.api(
+      //   "/search?q=coffee&type=place&center=37.76,122.427&distance=1000",
+      //   function (response) {
+      //     if (response && !response.error) {
+      //       console.log(response);
+      //     }
+      //   }
+      //   );
+
+
+      // };
+
+      // (function(d, s, id){
+      //    var js, fjs = d.getElementsByTagName(s)[0];
+      //    if (d.getElementById(id)) {return;}
+      //    js = d.createElement(s); js.id = id;
+      //    js.src = "//connect.facebook.net/en_US/sdk.js";
+      //    fjs.parentNode.insertBefore(js, fjs);
+      //  }(document, 'script', 'facebook-jssdk'));
+    </script>
+ 
+
+
 
     <div id="selector-pobreza" class="selector" style="
     position: absolute;
@@ -56,6 +90,7 @@
     <div id="selector">
       <div id="selector-pobreza" class="selector">Control Panel</div>
     </div>
+
     <div class="varlist" id="varlist_pobreza">
       <div class="nombre-variable varname nombre-variable-selected">
         <select id="cmbCategories" style="width:100%">
@@ -94,23 +129,27 @@
   <div id="panelInfo" style="">
     <div class="dark nom_mun blue-dark">ZipCode Details</div>
     <div class="mundata-box light state_box blue-light">
-      <div class="state_name">ZipCode: 06010</div>
-      <div class="num_mun">Municipality: CUAUHTMOC</div>
+      <div class="state_name">ZipCode: <span id="zipCode" style="float:right;"></span></div>
+      <div class="state_name">Municipality: <span id="municipality" style="float:right;"></span></div>
     </div>
-<!--     <div class="box-title">
-      <div class="light text datos-title" style="background: white; color: black;">Avg. <b>125.61</b> Num. <b>945 </b> <img style="float: left; margin-top: -5px;" height="25" width="35" src="img/men.png"> </div>
-    </div>
-    <div class="box-title">
-      <div class="light text datos-title" style="background: white; color: black;">Avg. <b>126.1</b> Num. <b>1109 </b> <img style="float: left; margin-top: -5px;" height="25" width="35" src="img/women.png"> </div>
-    </div> -->
     <div class="box-title">
       <div id="chart_avg" style="float:left;"></div>  
       <div id="chart_num" style="float:left;"></div>  
+    </div> 
+    <div class="box-title">
+      <div id="chart_histo" style="float:left;"></div>  
     </div>
   </div>
 
+
   <script type="text/javascript" charset="utf-8">
     $(document).ready(function() { 
+
+
+ 
+
+
+
     // UI Elements
     var ui_cmbCategories = $("#cmbCategories"),
     ui_cmbZipCodes = $("#cmbZipCodes");
@@ -138,7 +177,6 @@
       detectRetina: true
     }).addTo(map);
     ui_cmbCategories.on('change',function(e){
-      console.log('Categories combo change');  
       var category_code = $(this).val();
       if (category_code){
         optFilter.category = category_code;
@@ -146,7 +184,6 @@
       }        
     });
     ui_cmbZipCodes.on('change',function(e){
-      console.log('ZipCode combo change');
       var zip_code = $(this).val();
       if (zip_code){
         optFilter.zipcode = zip_code;
@@ -179,6 +216,9 @@
 
 
       BBVAService.getCustomerZipCodes(opts.zipcode,opts.category,opts.date_min,opts.date_max,opts.by, function(data){
+
+        if(!data) return;
+
        // var mainZipcode = '',
        // relatedZipcodes = [];
         //TODO: FIX THIS!!! Just a walkaround
@@ -189,7 +229,7 @@
           var res = _.find(relatedZipcodes, function(obj){ return obj.label==selectedZipCode })
           if (selectedZipCode == mainZipcode || res !== undefined){
             if (selectedZipCode==window.mainZipcode){
-              displayInformationPanel(feature.properties);
+              // displayInformationPanel(feature.properties);
               return 'red';                
             }
             return 'black';  
@@ -233,13 +273,17 @@
 
           };
 
-          if (selectedZipCode == window.mainZipcode){
-            map.fitBounds(layer.getBounds(),{maxZoom: 12, padding: [50,50]});          
-          }
-
           var res = _.find(relatedZipcodes, function(obj){ return obj.label==selectedZipCode })
           if (selectedZipCode == mainZipcode || res !== undefined){
             var layerCenter = layer.getBounds();
+            
+            if (selectedZipCode==window.mainZipcode){
+              map.fitBounds(layerCenter,{maxZoom: 12, padding: [50,50]});
+
+              var center = map.getCenter();
+              displayInformationPanel(feature.properties,center.lat, center.lng);              
+            }
+
             var zipLabel = L.marker(layerCenter.getCenter(), {
               icon: L.divIcon({                
                 className: 'text-labels', 
@@ -279,23 +323,13 @@
 triggerOptFilter();
 
 
-
-
-
     // Add Mexico DF districts to map
     districtsLayer = new L.GeoJSON.AJAX("data/df-municipalities.geojson", {
       style: style_districtsLayer
     });
     map.addLayer(districtsLayer);  
 
-
-
-
-
-
-
-
-    function displayInformationPanel(metadata){
+    function displayInformationPanel(metadata,center_lat,center_lng){
       var opts = {
         zipcode : optFilter.zipcode,
         category : optFilter.category,
@@ -309,14 +343,24 @@ triggerOptFilter();
       wom_avg;
 
 
-      var ui_infoPanel = $('#panelInfo');
+      var ui_infoPanel = $('#panelInfo'),
+          ui_zipCode   = $('span#zipCode'),
+          ui_municipality   = $('span#municipality');
+
+          // window.relatedZipcodes
+
+
       console.log(metadata);
-
-      ui_infoPanel.show(200);
-
+          
       BBVAService.getGenderByZipCodes(metadata.POSTALCODE,opts.category,opts.date_min,opts.date_max,function(data){
-        console.log(data);
-        if (data[0] && data[0].histogram[0]){
+        
+        ui_infoPanel.show(200);
+        ui_zipCode.html(metadata.POSTALCODE);
+        ui_municipality.html(metadata.MUN_NAME);
+
+        if (data && data[0].histogram[0]){
+
+
           // men stats
           men_num_payments = data[0].histogram[0].num_payments;
           men_avg = data[0].histogram[0].avg;
@@ -324,167 +368,86 @@ triggerOptFilter();
           wom_num_payments = data[0].histogram[1].num_payments;
           wom_avg = data[0].histogram[1].avg
 
+          console.log('Men NUM ' + men_num_payments );
+          console.log('Men NUM ' + wom_num_payments );
 
-          var chart_avg = c3.generate({
-            bindto: '#chart_avg',
-            legend: {
-              show: true
-            },
-            data: {
-              columns: [
-              ['men', men_avg],
-              ['women', wom_avg]
-              ],
-              type: 'donut'
-            },
-            donut:{
-              title:'Avg',
-              width: 20,
-              label: {
-                show: false,
-              }
-            },
-            color: {
-              pattern: ['#303FE3', '#E841CF']
-            },
-            size: {
-              width: 150,
-              height: 120
-            },
+
+          // Updating charts
+          updateChartAVG(men_avg,wom_avg);
+          updateChartNUM(men_num_payments,wom_num_payments);
+          
+
+          BBVAService.getPaymentDistributionByZipCodes(opts.zipcode,opts.category,opts.date_min,opts.date_max,function(data){
+            console.log(data);
+
+            var arrAvg=[],arrNum=[];
+            if (data[0].histogram){
+              data[0].histogram.forEach(function(histoItem){
+                arrAvg.push(histoItem.avg);
+                arrNum.push(histoItem.num_payments);
+              });
+
+              arrAvg.unshift('avg');
+              arrNum.unshift('payments');
+
+              updateChartDIST(arrAvg,arrNum);
+            };
+            
+
           });
 
 
-          var chart_num = c3.generate({
-            bindto: '#chart_num',
-            legend: {
-              show: false
-            },
-            data: {
-              columns: [
-              ['men', wom_num_payments],
-              ['women', men_num_payments]
-              ],
-              type: 'bar'//,
-              // groups: [
-              // ['women', 'men']
-              // ]
-            },
-            color: {
-              pattern: ['#303FE3', '#E841CF']
-            },
-            bar: {
-              title:'Avg',
-              width: {
-            ratio: 0.3 // this makes bar width 50% of length between ticks
-          }
-        },
-        axis: {
-          x: {
-            label: {
-              text: 'Num. of payments',
-              position: 'outer-top'
-            }
-          }
-          ,
-          y: {
-            tick: {
-              values: [50, 300, 500, 1000, 1500,5000, 10000]
-            }
-          }
-        },
-        size: {
-          width: 150,
-          height: 120
-        },
+          // var latLng ='';
+          // latLng += center_lat+","+center_lng;
+
+          // GoogleService.getPlaces('Fast+Food',latLng,500, function(data){
+          //   console.log('Google Places...');  
+          //   console.log(data);  
+          // });
+
+        }
+        else{
+
+          // hide charts
+          restartCharts();
+        }
+
+
+
       });
 
-          // update charts
-          // var chart_avg = c3.generate({
-          //   bindto: '#chart_avg',
-          //   label: {
-          //     show: false
-          //   },
-          //   data: {
-          //     columns: [
-          //     ['data1', men_avg],
-          //     ['data2', wom_avg],
-          //     ],
-          //     type : 'donut',
-          //     onclick: function (d, i) { console.log("onclick", d, i); },
-          //     onmouseover: function (d, i) { console.log("onmouseover", d, i); },
-          //     onmouseout: function (d, i) { console.log("onmouseout", d, i); }
-          //   },
-          //   color: {
-          //     pattern: ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
-          //   },
-          //   size: {
-          //     width: 150,
-          //     height: 150
-          //   },
-          //   padding: {
-          //     right: 0,
-          //     top:0,
-          //     left:0,
-          //     bottom:0
-          //   },
-          //   legend: {
-          //     position: 'bottom'
-          //   },
-          //   pie: {
-          //     title: "avg",
-          //     label: {
-          //       format: function (value, ratio, id) {
-          //         return d3.format('$')(value);
-          //       }
-          //     }
-          //   },
-          //   donut: {
-          //     width: 20,
-          //     title: "avg",
-          //     label: {
-          //       format: function (value, ratio, id) {
-          //         return d3.format('$')(value);
-          //       }
-          //     }
-          //   }
-          // });
-}
+    };
 
 
-});
+    var airQualityMarkers = [];
+    airQuality.forEach(function(elem){
 
-};
+      var markerClass='';
+      if (elem.aqi<50) markerClass = 'count-icon-00-50';
+      else if (elem.aqi>50 && elem.aqi<100) markerClass = 'count-icon-50-100';
+      else if (elem.aqi>100 && elem.aqi<150) markerClass = 'count-icon-100-150';
+      else if (elem.aqi>150 && elem.aqi<200) markerClass = 'count-icon-150-200';
+      else markerClass = 'count-icon';
 
-
-var airQualityMarkers = [];
-airQuality.forEach(function(elem){
-
-  var markerClass='';
-  if (elem.aqi<50) markerClass = 'count-icon-00-50';
-  else if (elem.aqi>50 && elem.aqi<100) markerClass = 'count-icon-50-100';
-  else if (elem.aqi>100 && elem.aqi<150) markerClass = 'count-icon-100-150';
-  else if (elem.aqi>150 && elem.aqi<200) markerClass = 'count-icon-150-200';
-  else markerClass = 'count-icon';
-
-  var marker = L.marker([
-    elem.lat,
-    elem.lon
-    ], {
-      icon: L.divIcon({
-        className: markerClass,
-        html: elem.aqi,
-        iconSize: [40, 40]
-      })
-    })
-  airQualityMarkers.push(marker);
-  var imageInfo = "<div style='z-index:9999;'><iframe src='http://aqicn.org/aqicn/json/mapinfo/@00000" + elem.x + "/info.html?" + elem.x + "&h=250' width=300' height='300' frameborder='0'></iframe></div>";
-  marker.bindPopup(imageInfo).openPopup();
-  marker.addTo(map);
-});
+      var marker = L.marker([
+        elem.lat,
+        elem.lon
+        ], {
+          icon: L.divIcon({
+            className: markerClass,
+            html: elem.aqi,
+            iconSize: [40, 40]
+          })
+        })
+      airQualityMarkers.push(marker);
+      var imageInfo = "<div style='z-index:9999;'><iframe src='http://aqicn.org/aqicn/json/mapinfo/@00000" + elem.x + "/info.html?" + elem.x + "&h=250' width=300' height='300' frameborder='0'></iframe></div>";
+      marker.bindPopup(imageInfo).openPopup();
+      marker.addTo(map);
+    });
 
 
 
-});
+  });
 
 </script>
 
