@@ -7,7 +7,5 @@ This visualization try to explain how complex the market is and how it interact 
 
 # http://matiasurbano.github.io/BBVA-Dataviz/
 
-# [![Demo](https://raw.githubusercontent.com/matiasurbano/BBVA-Dataviz/gh-pages/docs/2014-12-01_082822.png)](http://http://matiasurbano.github.io/BBVA-Dataviz)
-
 # [![Demo](https://raw.githubusercontent.com/matiasurbano/BBVA-Dataviz/gh-pages/docs/2014-12-01_0828.png)](http://http://matiasurbano.github.io/BBVA-Dataviz)
 
