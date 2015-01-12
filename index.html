@@ -41,38 +41,6 @@
   </head>
 
   <body id="dummybodyid" style="">
- 
-    <script>
-      // window.fbAsyncInit = function() {
-      //   FB.init({
-      //     appId      : '1534259746850490',
-      //     xfbml      : true,
-      //     version    : 'v2.1'
-      //   });
-
-
-      // FB.api(
-      //   "/search?q=coffee&type=place&center=37.76,122.427&distance=1000",
-      //   function (response) {
-      //     if (response && !response.error) {
-      //       console.log(response);
-      //     }
-      //   }
-      //   );
-
-
-      // };
-
-      // (function(d, s, id){
-      //    var js, fjs = d.getElementsByTagName(s)[0];
-      //    if (d.getElementById(id)) {return;}
-      //    js = d.createElement(s); js.id = id;
-      //    js.src = "//connect.facebook.net/en_US/sdk.js";
-      //    fjs.parentNode.insertBefore(js, fjs);
-      //  }(document, 'script', 'facebook-jssdk'));
-    </script>
- 
-
 
 
     <div id="selector-pobreza" class="selector" style="
@@ -115,7 +83,6 @@
         <div style="background-color:#ffde33;" class="legend-box">Moderate</div>
         <div style="background-color:#ff9933;" class="legend-box">Bad</div>
         <div style="background-color:#cc0033;" class="legend-box">Unhealthy</div>
-        <div style="background-color:#660099;" class="legend-box">Very Unhealthy</div>
         <div style="background-color:#7e0023;" class="legend-box">Hazardous</div>
         <div style="clear:both;"></div>
       </div>
@@ -140,9 +107,9 @@
   </div>
 
   <div id="slider-box">
-    <div class="dark year blue-dark selected-year" date_value="11/2013" id="20131101-20131130">Nov 13</div>
+    <div class="dark year blue-dark" date_value="11/2013" id="20131101-20131130">Nov 13</div>
     <div class="dark year blue-dark" date_value="12/2013" id="20131201-20131231">Dec 13</div>
-    <div class="dark year blue-dark" date_value="01/2014" id="20140101-20140131">Jan 14</div>
+    <div class="dark year blue-dark selected-year" date_value="01/2014" id="20140101-20140131">Jan 14</div>
     <div class="dark year blue-dark" date_value="02/2014" id="20140201-20140228">Feb 14</div>
     <div class="dark year blue-dark" date_value="03/2014" id="20140301-20140331">Mar 14</div>
     <div class="dark year blue-dark" date_value="04/2014" id="20140401-20140430">Apr 14</div>
@@ -183,9 +150,9 @@
     var optFilter = {
       zipcode  : '06010' || null,
       category : 'mx_fastfood' || null,
-      date     : '11/2013' || null,
-      date_min : '20131101' || null,
-      date_max : '20131130' || null,
+      date     : '01/2014' || null,
+      date_min : '20140101' || null,
+      date_max : '20140131' || null,
       by       : 'month'
     };
 
