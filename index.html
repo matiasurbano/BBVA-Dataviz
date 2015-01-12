@@ -30,7 +30,8 @@
     <script src="js/d3.v3.min.js"></script>
     <script src="js/c3.min.js"></script>
 
-
+    <script src="data/red_manual_particulas_susp.js"></script>
+  
     <script src="js/AirQualityService.js"></script>
     <script src="js/MapHelper.js"></script>
     <script src="js/BBVAService.js"></script>
@@ -82,6 +83,7 @@
     width: 100%;
     height: 30px;
     line-height: 30px;
+    text-shadow: 2px 2px black;
     opacity: 0.8;     filter: alpha(opacity=80); /* For IE8 and earlier */;
     ">Air Quality and the Market</div>
     <div id="map" class="leaflet-container leaflet-fade-anim" tabindex="0">
@@ -104,11 +106,32 @@
 
     <div class="box-title" style="
     position: absolute;
+    bottom: 50px;
+    right: 15px;
+    ">
+    <div id="legend">
+      <div id="legend-rezago000510">
+        <div style="background-color:transparent; font-weight:bold; width:155px; text-shadow: 2px 2px black;" class="legend-box">Air Quality Markers</div>
+        <div style="background-color:#009966;" class="legend-box">Good</div>
+        <div style="background-color:#ffde33;" class="legend-box">Moderate</div>
+        <div style="background-color:#ff9933;" class="legend-box">Bad</div>
+        <div style="background-color:#cc0033;" class="legend-box">Unhealthy</div>
+        <div style="background-color:#660099;" class="legend-box">Very Unhealthy</div>
+        <div style="background-color:#7e0023;" class="legend-box">Hazardous</div>
+        <div style="clear:both;"></div>
+      </div>
+    </div>
+  </div>
+
+    <div class="box-title" style="
+    position: absolute;
     bottom: 24px;
     right: 15px;
     ">
     <div id="legend">
       <div id="legend-rezago000510">
+        <div style="background-color:transparent; font-weight:bold; right: 160px;
+            width: 100px; text-shadow: 2px 2px black;" class="legend-box">Zip Codes</div>
         <div style="background-color:red;" class="legend-box">Selected</div>
         <div style="background-color:black;" class="legend-box">Origin</div>
         <div style="background-color:grey;" class="legend-box">Not apply</div>
@@ -118,12 +141,12 @@
   </div>
 
   <div id="slider-box">
-    <div class="dark year blue-dark selected-year"  id="20131101-20131130">Nov 13</div>
-    <div class="dark year blue-dark"  id="20131201-20131231">Dec 13</div>
-    <div class="dark year blue-dark"  id="20140101-20140131">Jan 14</div>
-    <div class="dark year blue-dark"  id="20140201-20140228">Feb 14</div>
-    <div class="dark year blue-dark"  id="20140301-20140331">Mar 14</div>
-    <div class="dark year blue-dark"  id="20140401-20140430">Apr 14</div>
+    <div class="dark year blue-dark selected-year" date_value="11/2013" id="20131101-20131130">Nov 13</div>
+    <div class="dark year blue-dark" date_value="12/2013" id="20131201-20131231">Dec 13</div>
+    <div class="dark year blue-dark" date_value="01/2014" id="20140101-20140131">Jan 14</div>
+    <div class="dark year blue-dark" date_value="02/2014" id="20140201-20140228">Feb 14</div>
+    <div class="dark year blue-dark" date_value="03/2014" id="20140301-20140331">Mar 14</div>
+    <div class="dark year blue-dark" date_value="04/2014" id="20140401-20140430">Apr 14</div>
   </div>
 
   <div id="panelInfo" style="">
@@ -161,6 +184,7 @@
     var optFilter = {
       zipcode  : '06010' || null,
       category : 'mx_fastfood' || null,
+      date     : '11/2013' || null,
       date_min : '20131101' || null,
       date_max : '20131130' || null,
       by       : 'month'
@@ -195,6 +219,7 @@
       ui_optYear.siblings().removeClass("selected-year");
       $(event.target).addClass("selected-year")
       if (event.target.id){
+        optFilter.date     = event.target.getAttribute('date_value');
         optFilter.date_min = event.target.id.split('-')[0];
         optFilter.date_max = event.target.id.split('-')[1];
         triggerOptFilter();
@@ -207,12 +232,46 @@
     function triggerOptFilter(){
       var opts = {
         zipcode : optFilter.zipcode,
-        category : optFilter.category,
+        category : optFilter.category,  
+        date : optFilter.date,
         date_min : optFilter.date_min,
         date_max : optFilter.date_max,
         by: optFilter.by
       };
 
+
+      var airQualityMarkers = [];
+      var stationStatus = AirQualityService.getStationsByMonth(opts.date);
+
+      stationStatus.forEach(function(station){
+        var arrAirQualityIndex = _.max(station.histo, function(item){ return item.value; });
+        var airQualityIndex = arrAirQualityIndex.value;
+
+        var markerClass='';
+        if (airQualityIndex<50) markerClass = 'count-icon-00-50';
+        else if (airQualityIndex>50 && airQualityIndex<100) markerClass = 'count-icon-50-100';
+        else if (airQualityIndex>100 && airQualityIndex<150) markerClass = 'count-icon-100-150';
+        else if (airQualityIndex>150 && airQualityIndex<200) markerClass = 'count-icon-150-200';
+        else markerClass = 'count-icon';
+
+        if (airQualityIndex!= -1){
+          var marker = L.marker([
+            station.lat,
+            station.lng
+            ], {
+              icon: L.divIcon({
+                className: markerClass,
+                html: airQualityIndex,
+                iconSize: [40, 40]
+              })
+            })
+          airQualityMarkers.push(marker);
+          // var imageInfo = "<div style='z-index:9999;'><iframe src='http://aqicn.org/aqicn/json/mapinfo/@00000" + elem.x + "/info.html?" + elem.x + "&h=250' width=300' height='300' frameborder='0'></iframe></div>";
+          // marker.bindPopup(imageInfo).openPopup();
+          marker.addTo(map);
+        }
+
+      }); 
 
 
       BBVAService.getCustomerZipCodes(opts.zipcode,opts.category,opts.date_min,opts.date_max,opts.by, function(data){
@@ -349,8 +408,6 @@ triggerOptFilter();
 
           // window.relatedZipcodes
 
-
-      console.log(metadata);
           
       BBVAService.getGenderByZipCodes(metadata.POSTALCODE,opts.category,opts.date_min,opts.date_max,function(data){
         
@@ -368,17 +425,12 @@ triggerOptFilter();
           wom_num_payments = data[0].histogram[1].num_payments;
           wom_avg = data[0].histogram[1].avg
 
-          console.log('Men NUM ' + men_num_payments );
-          console.log('Men NUM ' + wom_num_payments );
-
-
           // Updating charts
           updateChartAVG(men_avg,wom_avg);
           updateChartNUM(men_num_payments,wom_num_payments);
           
 
           BBVAService.getPaymentDistributionByZipCodes(opts.zipcode,opts.category,opts.date_min,opts.date_max,function(data){
-            console.log(data);
 
             var arrAvg=[],arrNum=[];
             if (data[0].histogram){
@@ -397,13 +449,8 @@ triggerOptFilter();
           });
 
 
-          // var latLng ='';
-          // latLng += center_lat+","+center_lng;
-
-          // GoogleService.getPlaces('Fast+Food',latLng,500, function(data){
-          //   console.log('Google Places...');  
-          //   console.log(data);  
-          // });
+          // show charts
+          showCharts();
 
         }
         else{
@@ -418,32 +465,6 @@ triggerOptFilter();
 
     };
 
-
-    var airQualityMarkers = [];
-    airQuality.forEach(function(elem){
-
-      var markerClass='';
-      if (elem.aqi<50) markerClass = 'count-icon-00-50';
-      else if (elem.aqi>50 && elem.aqi<100) markerClass = 'count-icon-50-100';
-      else if (elem.aqi>100 && elem.aqi<150) markerClass = 'count-icon-100-150';
-      else if (elem.aqi>150 && elem.aqi<200) markerClass = 'count-icon-150-200';
-      else markerClass = 'count-icon';
-
-      var marker = L.marker([
-        elem.lat,
-        elem.lon
-        ], {
-          icon: L.divIcon({
-            className: markerClass,
-            html: elem.aqi,
-            iconSize: [40, 40]
-          })
-        })
-      airQualityMarkers.push(marker);
-      var imageInfo = "<div style='z-index:9999;'><iframe src='http://aqicn.org/aqicn/json/mapinfo/@00000" + elem.x + "/info.html?" + elem.x + "&h=250' width=300' height='300' frameborder='0'></iframe></div>";
-      marker.bindPopup(imageInfo).openPopup();
-      marker.addTo(map);
-    });
 
 
 

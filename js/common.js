@@ -50,8 +50,16 @@ loadCmbZipCodes();
 });
 
 
-function restartCharts(){
+function showCharts(){
+  $('#chart_avg').show();
+  $('#chart_num').show();
+  $('#chart_histo').show();
+};
 
+function restartCharts(){
+  $('#chart_avg').hide();
+  $('#chart_num').hide();
+  $('#chart_histo').hide();
 };
 
 function updateChartAVG(men_avg,wom_avg){
