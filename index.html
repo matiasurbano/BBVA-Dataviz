@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="css/select2.css">
     <link rel="stylesheet" href="css/toasty-min.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/c3.min.css">
 
 
     <script src="js/jquery-1.10.2.min.js"></script>
@@ -26,8 +27,11 @@
     <script src="js/leaflet.spin.js"></script>
     <script src="js/spin.js"></script>
     <script src="js/toasty-min.js"></script>
+    <script src="js/d3.v3.min.js"></script>
+    <script src="js/c3.min.js"></script>
 
-
+    <script src="data/red_manual_particulas_susp.js"></script>
+  
     <script src="js/AirQualityService.js"></script>
     <script src="js/MapHelper.js"></script>
     <script src="js/BBVAService.js"></script>
@@ -38,14 +42,16 @@
 
   <body id="dummybodyid" style="">
 
+
     <div id="selector-pobreza" class="selector" style="
-        position: absolute;
-        top: 10px;
-        z-index: 999;
-        width: 100%;
-        height: 30px;
-        line-height: 30px;
-        opacity: 0.8;     filter: alpha(opacity=80); /* For IE8 and earlier */;
+    position: absolute;
+    top: 10px;
+    z-index: 999;
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    text-shadow: 2px 2px black;
+    opacity: 0.8;     filter: alpha(opacity=80); /* For IE8 and earlier */;
     ">Air Quality and the Market</div>
     <div id="map" class="leaflet-container leaflet-fade-anim" tabindex="0">
 
@@ -53,6 +59,7 @@
     <div id="selector">
       <div id="selector-pobreza" class="selector">Control Panel</div>
     </div>
+
     <div class="varlist" id="varlist_pobreza">
       <div class="nombre-variable varname nombre-variable-selected">
         <select id="cmbCategories" style="width:100%">
@@ -65,47 +72,90 @@
     </div>
 
     <div class="box-title" style="
-        position: absolute;
-        bottom: 24px;
-        right: 15px;
-       ">
-        <div id="legend">
-            <div id="legend-rezago000510">
-                <div style="background-color:red;" class="legend-box">Selected</div>
-                <div style="background-color:black;" class="legend-box">Origin</div>
-                <div style="background-color:grey;" class="legend-box">Not apply</div>
-                <div style="clear:both;"></div>
-            </div>
-        </div>
+    position: absolute;
+    bottom: 50px;
+    right: 15px;
+    ">
+    <div id="legend">
+      <div id="legend-rezago000510">
+        <div style="background-color:transparent; font-weight:bold; width:155px; text-shadow: 2px 2px black;" class="legend-box">Air Quality Markers</div>
+        <div style="background-color:#009966;" class="legend-box">Good</div>
+        <div style="background-color:#ffde33;" class="legend-box">Moderate</div>
+        <div style="background-color:#ff9933;" class="legend-box">Bad</div>
+        <div style="background-color:#cc0033;" class="legend-box">Unhealthy</div>
+        <div style="background-color:#7e0023;" class="legend-box">Hazardous</div>
+        <div style="clear:both;"></div>
+      </div>
     </div>
+  </div>
 
-    <div id="slider-box">
-      <div class="dark year blue-dark selected-year"  id="20131101-20131130">Nov 13</div>
-      <div class="dark year blue-dark"  id="20131201-20131231">Dec 13</div>
-      <div class="dark year blue-dark"  id="20140101-20140131">Jan 14</div>
-      <div class="dark year blue-dark"  id="20140201-20140228">Feb 14</div>
-      <div class="dark year blue-dark"  id="20140301-20140331">Mar 14</div>
-      <div class="dark year blue-dark"  id="20140401-20140430">Apr 14</div>
+    <div class="box-title" style="
+    position: absolute;
+    bottom: 24px;
+    right: 15px;
+    ">
+    <div id="legend">
+      <div id="legend-rezago000510">
+        <div style="background-color:transparent; font-weight:bold; right: 160px;
+            width: 100px; text-shadow: 2px 2px black;" class="legend-box">Zip Codes</div>
+        <div style="background-color:red;" class="legend-box">Selected</div>
+        <div style="background-color:black;" class="legend-box">Origin</div>
+        <div style="background-color:grey;" class="legend-box">Not apply</div>
+        <div style="clear:both;"></div>
+      </div>
     </div>
-    <script type="text/javascript" charset="utf-8">
-      $(document).ready(function() { 
+  </div>
+
+  <div id="slider-box">
+    <div class="dark year blue-dark" date_value="11/2013" id="20131101-20131130">Nov 13</div>
+    <div class="dark year blue-dark" date_value="12/2013" id="20131201-20131231">Dec 13</div>
+    <div class="dark year blue-dark selected-year" date_value="01/2014" id="20140101-20140131">Jan 14</div>
+    <div class="dark year blue-dark" date_value="02/2014" id="20140201-20140228">Feb 14</div>
+    <div class="dark year blue-dark" date_value="03/2014" id="20140301-20140331">Mar 14</div>
+    <div class="dark year blue-dark" date_value="04/2014" id="20140401-20140430">Apr 14</div>
+  </div>
+
+  <div id="panelInfo" style="">
+    <div class="dark nom_mun blue-dark">ZipCode Details</div>
+    <div class="mundata-box light state_box blue-light">
+      <div class="state_name">ZipCode: <span id="zipCode" style="float:right;"></span></div>
+      <div class="state_name">Municipality: <span id="municipality" style="float:right;"></span></div>
+    </div>
+    <div class="box-title">
+      <div id="chart_avg" style="float:left;"></div>  
+      <div id="chart_num" style="float:left;"></div>  
+    </div> 
+    <div class="box-title">
+      <div id="chart_histo" style="float:left;"></div>  
+    </div>
+  </div>
+
+
+  <script type="text/javascript" charset="utf-8">
+    $(document).ready(function() { 
+
+
+ 
+
+
+
     // UI Elements
     var ui_cmbCategories = $("#cmbCategories"),
     ui_cmbZipCodes = $("#cmbZipCodes");
     // Map Elements
     var zipCodesLayer,
     districtsLayer,
-    mainInfoPanel,
-    airQualityLayer;
-
+    airQualityLayer;  
 
     var optFilter = {
       zipcode  : '06010' || null,
       category : 'mx_fastfood' || null,
-      date_min : '20131101' || null,
-      date_max : '20131130' || null,
+      date     : '01/2014' || null,
+      date_min : '20140101' || null,
+      date_max : '20140131' || null,
       by       : 'month'
     };
+
     // defining map
     var map = new L.Map('map', {
       maxZoom: 20,
@@ -117,7 +167,6 @@
       detectRetina: true
     }).addTo(map);
     ui_cmbCategories.on('change',function(e){
-      console.log('Categories combo change');  
       var category_code = $(this).val();
       if (category_code){
         optFilter.category = category_code;
@@ -125,7 +174,6 @@
       }        
     });
     ui_cmbZipCodes.on('change',function(e){
-      console.log('ZipCode combo change');
       var zip_code = $(this).val();
       if (zip_code){
         optFilter.zipcode = zip_code;
@@ -137,21 +185,65 @@
       ui_optYear.siblings().removeClass("selected-year");
       $(event.target).addClass("selected-year")
       if (event.target.id){
+        optFilter.date     = event.target.getAttribute('date_value');
         optFilter.date_min = event.target.id.split('-')[0];
         optFilter.date_max = event.target.id.split('-')[1];
         triggerOptFilter();
       }
     });
+
+
+    
+
     function triggerOptFilter(){
-      console.log('trigger');
       var opts = {
         zipcode : optFilter.zipcode,
-        category : optFilter.category,
+        category : optFilter.category,  
+        date : optFilter.date,
         date_min : optFilter.date_min,
         date_max : optFilter.date_max,
         by: optFilter.by
       };
+
+
+      var airQualityMarkers = [];
+      var stationStatus = AirQualityService.getStationsByMonth(opts.date);
+
+      stationStatus.forEach(function(station){
+        var arrAirQualityIndex = _.max(station.histo, function(item){ return item.value; });
+        var airQualityIndex = arrAirQualityIndex.value;
+
+        var markerClass='';
+        if (airQualityIndex<50) markerClass = 'count-icon-00-50';
+        else if (airQualityIndex>50 && airQualityIndex<100) markerClass = 'count-icon-50-100';
+        else if (airQualityIndex>100 && airQualityIndex<150) markerClass = 'count-icon-100-150';
+        else if (airQualityIndex>150 && airQualityIndex<200) markerClass = 'count-icon-150-200';
+        else markerClass = 'count-icon';
+
+        if (airQualityIndex!= -1){
+          var marker = L.marker([
+            station.lat,
+            station.lng
+            ], {
+              icon: L.divIcon({
+                className: markerClass,
+                html: airQualityIndex,
+                iconSize: [40, 40]
+              })
+            })
+          airQualityMarkers.push(marker);
+          // var imageInfo = "<div style='z-index:9999;'><iframe src='http://aqicn.org/aqicn/json/mapinfo/@00000" + elem.x + "/info.html?" + elem.x + "&h=250' width=300' height='300' frameborder='0'></iframe></div>";
+          // marker.bindPopup(imageInfo).openPopup();
+          marker.addTo(map);
+        }
+
+      }); 
+
+
       BBVAService.getCustomerZipCodes(opts.zipcode,opts.category,opts.date_min,opts.date_max,opts.by, function(data){
+
+        if(!data) return;
+
        // var mainZipcode = '',
        // relatedZipcodes = [];
         //TODO: FIX THIS!!! Just a walkaround
@@ -162,7 +254,7 @@
           var res = _.find(relatedZipcodes, function(obj){ return obj.label==selectedZipCode })
           if (selectedZipCode == mainZipcode || res !== undefined){
             if (selectedZipCode==window.mainZipcode){
-              mainInfoPanel.update(feature.properties);
+              // displayInformationPanel(feature.properties);
               return 'red';                
             }
             return 'black';  
@@ -175,7 +267,7 @@
             opacity: 1,
             color: 'black',
             fillOpacity: 0.7,
-            fillColor: fixedColorByType(feature)
+            fillColor: fixedColorByType(feature)  
           };
         }
         var layer;
@@ -191,32 +283,48 @@
           if (!L.Browser.ie && !L.Browser.opera) {
             layer.bringToFront();
           }
-          mainInfoPanel.update(layer.feature.properties);
         }
         function resetHighlight(e) {
           zipCodesLayer.resetStyle(e.target);
-          mainInfoPanel.update();
         }
         function onEachFeature(feature, layer) {
           var selectedZipCode = feature.properties.POSTALCODE;
-          if (selectedZipCode == window.mainZipcode){
-            map.fitBounds(layer.getBounds(),{maxZoom: 12, padding: [50,50]});
-          }
-          layer.on({
-            mouseover: highlightFeature,
-            mouseout: resetHighlight,
-            click: function(e){
-              var selectedZipCode = feature.properties.POSTALCODE;
-              var res = _.find(relatedZipcodes, function(obj){ return obj.label==selectedZipCode })
-              if (selectedZipCode == mainZipcode || res !== undefined){
-                map.fitBounds(e.target.getBounds(),{maxZoom: 12, padding: [50,50]});
-              }
-              else{
-                optFilter.zipcode = selectedZipCode;
-                ui_cmbZipCodes.select2('val', selectedZipCode);
-                triggerOptFilter();
-              }
+          var areaClick_handler = function(e){
+            var selectedZipCode = feature.properties.POSTALCODE;
+
+            optFilter.zipcode = selectedZipCode;
+            ui_cmbZipCodes.select2('val', selectedZipCode);
+            triggerOptFilter();
+
+          };
+
+          var res = _.find(relatedZipcodes, function(obj){ return obj.label==selectedZipCode })
+          if (selectedZipCode == mainZipcode || res !== undefined){
+            var layerCenter = layer.getBounds();
+            
+            if (selectedZipCode==window.mainZipcode){
+              map.fitBounds(layerCenter,{maxZoom: 12, padding: [50,50]});
+
+              var center = map.getCenter();
+              displayInformationPanel(feature.properties,center.lat, center.lng);              
             }
+
+            var zipLabel = L.marker(layerCenter.getCenter(), {
+              icon: L.divIcon({                
+                className: 'text-labels', 
+                html: selectedZipCode
+              }),
+              draggable: false           
+            });
+            zipLabel.on('click',areaClick_handler)
+            zipLabel.addTo(zipCodesLayer); 
+          }      
+
+
+          layer.on({
+            // mouseover: highlightFeature,
+            // mouseout: resetHighlight,
+            click: areaClick_handler
           });
         }
         function filter(feature, layer) {
@@ -225,164 +333,115 @@
           return (selectedZipCode == mainZipcode || res !== undefined)
         }
         if (zipCodesLayer !== undefined){
-          map.removeLayer(zipCodesLayer);           
+          map.removeLayer(zipCodesLayer);  
         }
         zipCodesLayer = new L.GeoJSON.AJAX("data/df-zipcodes.geojson", {
           style: style,
-          onEachFeature: onEachFeature,
-         // filter: filter
-       });
+          onEachFeature: onEachFeature
+        });       
         map.addLayer(zipCodesLayer);
       });  
 }
+
+
+
 triggerOptFilter();
-function style_districtsLayer(feature) {
-  return {
-    weight: 1,
-    opacity: 1,
-    color: 'black',
-    fillOpacity: 0.4,
-    fillColor: getFixedColor(feature)
-  };
-}
+
+
     // Add Mexico DF districts to map
     districtsLayer = new L.GeoJSON.AJAX("data/df-municipalities.geojson", {
       style: style_districtsLayer
     });
     map.addLayer(districtsLayer);  
-  // control that shows state info on hover
-  var mainInfoPanel = L.control();
-  mainInfoPanel.onAdd = function (map) {
-    this._div = L.DomUtil.create('div', 'info');
-    this.update();
-    return this._div;
-  };
-  mainInfoPanel.update = function (props) {
-    var that = this,
-        panelHTML ='';
-    if (props){
-    var opts = {
-      category : optFilter.category,
-      date_min : optFilter.date_min,
-      date_max : optFilter.date_max
-    };
-    var selectedZipCode = props.POSTALCODE;
-    if (selectedZipCode == mainZipcode){
-        panelHTML += 
-        "<div id='datos_mun' style='z-index:8888;'>"+
-        " <div class='dark nom_mun blue-dark'>ZipCode Details</div> " +
-        " <div class='mundata-box light state_box blue-light'> " +
-        "   <div class='state_name'>ZipCode:      " + props.POSTALCODE + "</div> " +
-        "   <div class='num_mun'   >Municipality: "  + props.MUN_NAME +  "</div> " +
-        " </div> ";
-       panelHTML += 
-        " <div class='box-title'> " + 
-        "      <div class='light text datos-title' style='background: white; color: black;'>" +
-        "            <img style=' margin-top: -5px;' height='22' width='22' src='img/spinner.gif'>  " + 
-        "      </div> " + 
-        "  </div> ";
-        panelHTML += 
-        " <div class='box-title'> " + 
-        " </div> " +
-        " </div>";
-      that._div.innerHTML = panelHTML;
-      // get more informacion about
-      BBVAService.getGenderByZipCodes(props.POSTALCODE,opts.category,opts.date_min,opts.date_max,function(data){
-        if (data[0] && data[0].histogram[0]){
+
+    function displayInformationPanel(metadata,center_lat,center_lng){
+      var opts = {
+        zipcode : optFilter.zipcode,
+        category : optFilter.category,
+        date_min : optFilter.date_min,
+        date_max : optFilter.date_max,
+        by: optFilter.by
+      };
+      var men_num_payments,
+      men_avg,
+      wom_num_payments,
+      wom_avg;
+
+
+      var ui_infoPanel = $('#panelInfo'),
+          ui_zipCode   = $('span#zipCode'),
+          ui_municipality   = $('span#municipality');
+
+          // window.relatedZipcodes
+
+          
+      BBVAService.getGenderByZipCodes(metadata.POSTALCODE,opts.category,opts.date_min,opts.date_max,function(data){
+        
+        ui_infoPanel.show(200);
+        ui_zipCode.html(metadata.POSTALCODE);
+        ui_municipality.html(metadata.MUN_NAME);
+
+        if (data && data[0].histogram[0]){
+
+
           // men stats
           men_num_payments = data[0].histogram[0].num_payments;
           men_avg = data[0].histogram[0].avg;
           // men stats
           wom_num_payments = data[0].histogram[1].num_payments;
           wom_avg = data[0].histogram[1].avg
-        }
-   
-        panelHTML += 
-        "<div id='datos_mun' style='z-index:8888;'>"+
-        " <div class='dark nom_mun blue-dark'>ZipCode Details</div> " +
-        " <div class='mundata-box light state_box blue-light'> " +
-        "   <div class='state_name'>ZipCode:      " + props.POSTALCODE + "</div> " +
-        "   <div class='num_mun'   >Municipality: "  + props.MUN_NAME +  "</div> " +
-        " </div> ";
-         if (data[0] && data[0].histogram[0]){
-        panelHTML += 
-        " <div class='box-title'> " + 
-        "      <div class='light text datos-title' style='background: white; color: black;'>Avg.  <b>" + men_avg + "</b> Num. <b>" + men_num_payments + " </b> " +
-        "            <img style='float: left; margin-top: -5px;' height='25' width='35' src='img/men.png'>  " + 
-        "      </div> " + 
-        "  </div> " + 
-        " <div class='box-title'> " + 
-        "      <div class='light text datos-title' style='background: white; color: black;'>Avg.  <b>" + wom_avg + "</b> Num. <b>" + wom_num_payments +  " </b> " +
-        "            <img style='float: left; margin-top: -5px;' height='25' width='35' src='img/women.png'>  " + 
-        "      </div> " +  
-        "  </div> ";
-        }
-         that._div.innerHTML = panelHTML;
-      });
-    }else{
-       that._div.innerHTML = 
-            "<div id='datos_mun' style='z-index:8888;'>"+
-            " <div class='dark nom_mun blue-dark'>ZipCode Details</div> " +
-            " <div class='mundata-box light state_box blue-light'> " +
-            "   <div class='state_name'>ZipCode:      " + props.POSTALCODE + "</div> " +
-            "   <div class='num_mun'   >Municipality: "  + props.MUN_NAME +  "</div> " +
-            " </div> " +      
-            " </div>";
+
+          // Updating charts
+          updateChartAVG(men_avg,wom_avg);
+          updateChartNUM(men_num_payments,wom_num_payments);
           
-    }
-    }
-  };
-  mainInfoPanel.addTo(map);
+
+          BBVAService.getPaymentDistributionByZipCodes(opts.zipcode,opts.category,opts.date_min,opts.date_max,function(data){
+
+            var arrAvg=[],arrNum=[];
+            if (data[0].histogram){
+              data[0].histogram.forEach(function(histoItem){
+                arrAvg.push(histoItem.avg);
+                arrNum.push(histoItem.num_payments);
+              });
+
+              arrAvg.unshift('avg');
+              arrNum.unshift('payments');
+
+              updateChartDIST(arrAvg,arrNum);
+            };
+            
+
+          });
 
 
-var airQualityMarkers = [];
-  airQuality.forEach(function(elem){
+          // show charts
+          showCharts();
 
-    var markerClass='';
-    if (elem.aqi<50) markerClass = 'count-icon-00-50';
-    else if (elem.aqi>50 && elem.aqi<100) markerClass = 'count-icon-50-100';
-    else if (elem.aqi>100 && elem.aqi<150) markerClass = 'count-icon-100-150';
-    else if (elem.aqi>150 && elem.aqi<200) markerClass = 'count-icon-150-200';
-    else markerClass = 'count-icon';
+        }
+        else{
 
-    var marker = L.marker([
-        elem.lat,
-        elem.lon
-    ], {
-        icon: L.divIcon({
-            // className: 'count-icon',
-            className: markerClass,
-            html: elem.aqi,
-            iconSize: [40, 40]
-        })
-    })
-    airQualityMarkers.push(marker);
-    var imageInfo = "<div style='z-index:9999;'><iframe src='http://aqicn.org/aqicn/json/mapinfo/@00000" + elem.x + "/info.html?" + elem.x + "&h=250' width=300' height='300' frameborder='0'></iframe></div>";
-    marker.bindPopup(imageInfo).openPopup();
-    marker.addTo(map);
-});
-
-var popup = L.popup();
-
-function onMapClick(e) {
-  popup
-    .setLatLng(e.latlng)
-    .setContent("No action here!")
-    .openOn(map);
-}
-
-map.on('click', onMapClick);
+          // hide charts
+          restartCharts();
+        }
 
 
 
-});
+      });
+
+    };
+
+
+
+
+  });
 
 </script>
 
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
   ga('create', 'UA-57306667-1', 'matiasurbano.github.io');

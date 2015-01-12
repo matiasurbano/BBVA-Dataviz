@@ -12,8 +12,6 @@ function airQuality_ranges(d) {
 }
 
 
-
-
 var airQuality = [{
   "lat": "19.657669571841",
   "lon": "-99.096307280228",
@@ -260,9 +258,81 @@ var airQuality = [{
   "pol": "pm25",
   "idx": 210,
   "x": 5867
-}]
+}];
+
+var stations = 
+[
+  {'code':'ACO','name':'Acolman','lng':-98.912003,'lat':19.635501},
+  {'code':'AJU','name':'Ajusco','lng':-99.162611,'lat':19.154286},
+  {'code':'ATI','name':'Atizapan','lng':-99.254133,'lat':19.576963},
+  {'code':'CAM','name':'Camarones','lng':-99.169794,'lat':19.468404},
+  {'code':'CHO','name':'Chalco','lng':-98.886088,'lat':19.266948},
+  {'code':'COR','name':'CORENA','lng':-99.02604,'lat':19.265346},
+  {'code':'COY','name':'Coyoacán','lng':-99.157101,'lat':19.350258},
+  {'code':'CUA','name':'Cuajimalpa','lng':-99.291705,'lat':19.365313},
+  {'code':'CUT','name':'Cuautitlán','lng':-99.198602,'lat':19.722186},
+  {'code':'DIC','name':'Diconsa','lng':-99.185774,'lat':19.298819},
+  {'code':'EAJ','name':'Ecoguardas Ajusco','lng':-99.203971,'lat':19.271222},
+  {'code':'EDL','name':'Exconv. Desierto Leones','lng':-99.310635,'lat':19.313357},
+  {'code':'FAC','name':'FES Acatlán','lng':-99.243524,'lat':19.482473},
+  {'code':'HGM','name':'Hospital General de México','lng':-99.152207,'lat':19.411617},
+  {'code':'IBM','name':'Legaria','lng':-99.21536,'lat':19.443319},
+  {'code':'IZT','name':'Iztacalco','lng':-99.117641,'lat':19.384413},
+  {'code':'LAA','name':'Lab. de Analisis Ambiental','lng':-99.147312,'lat':19.483781},
+  {'code':'LLA','name':'Los Laureles','lng':-99.039644,'lat':19.578792},
+  {'code':'LOM','name':'Lomas','lng':-99.242062,'lat':19.403},
+  {'code':'LPR','name':'La Presa','lng':-99.11772,'lat':19.534727},
+  {'code':'MCM','name':'Museo de la Cd. de México','lng':-99.131924,'lat':19.429071},
+  {'code':'MER','name':'Merced','lng':-99.119594,'lat':19.42461},
+  {'code':'MON','name':'Montecillo','lng':-98.902853,'lat':19.460415},
+  {'code':'MPA','name':'Milpa Alta','lng':-99.011325,'lat':19.200712},
+  {'code':'NEZ','name':'Nezahualcóyotl','lng':-99.028212,'lat':19.393734},
+  {'code':'PED','name':'Pedregal','lng':-99.204136,'lat':19.325146},
+  {'code':'SAG','name':'San Agustín','lng':-99.030324,'lat':19.532968},
+  {'code':'SFE','name':'Santa fe','lng':-99.262865,'lat':19.357357},
+  {'code':'SHA','name':'Secretaría de Hacienda','lng':-99.207868,'lat':19.446203},
+  {'code':'SJA','name':'San Juan Aragón','lng':-99.086095,'lat':19.452592},
+  {'code':'SNT','name':'San Nicolas Totolapan','lng':-99.256462,'lat':19.250385},
+  {'code':'SUR','name':'Santa Ursula','lng':-99.149994,'lat':19.31448},
+  {'code':'TAH','name':'Tlahuac','lng':-99.010564,'lat':19.246459},
+  {'code':'TEC','name':'Cerro del Tepeyac','lng':-99.114229,'lat':19.487227},
+  {'code':'TLA','name':'Tlalnepantla','lng':-99.204597,'lat':19.529077},
+  {'code':'TLI','name':'Tultitlán','lng':-99.177173,'lat':19.602542},
+  {'code':'TPN','name':'Tlalpan','lng':-99.184177,'lat':19.257041},
+  {'code':'UAX','name':'UAM Xochimilco','lng':-99.103629,'lat':19.304441},
+  {'code':'UIZ','name':'UAM Iztapalapa','lng':-99.07388,'lat':19.360794},
+  {'code':'UNM','name':'Unidad Movil','lng':-99.147137,'lat':19.482238},
+  {'code':'VIF','name':'Villa de las Flores','lng':-99.09659,'lat':19.658223},
+  {'code':'XAL','name':'Xalostoc','lng':-99.0824,'lat':19.525995}
+];
+
 
 var AirQualityService = {
+
+  getStationsByMonth : function(monthYear){
+    var mixinRes = [];
+    var res =  _.chain(historicoParticulas).filter(function(item){ 
+    return ( item.date.indexOf(monthYear)!=-1 )}).groupBy('station');
+    // return ( item.date.indexOf(monthYear)!=-1 && (item.parameter == "PM2.5" || item.parameter == "PM10" ))}).groupBy('station');
+
+    stations.forEach(function(station){
+      if (res._wrapped[station.code]){
+
+        var mixin = {};
+        mixin.code = station.code; 
+        mixin.name = station.name; 
+        mixin.lat = station.lat; 
+        mixin.lng = station.lng; 
+        mixin.histo = res._wrapped[station.code]; 
+        mixinRes.push(mixin);
+
+      }
+
+    });
+
+    return mixinRes;
+
+  },
 
   getCustomerZipCodes: function(zipcode,category_code,min_date,max_date,order_by,callback){
     var uri = 'https://apis.bbvabancomer.com/datathon/zipcodes/_ZIPCODE_/customer_zipcodes';
